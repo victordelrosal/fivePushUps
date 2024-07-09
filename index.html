@@ -35,12 +35,23 @@
     .not-checked {
       cursor: pointer;
     }
+    .header {
+      display: flex;
+      align-items: center;
+    }
+    .logo {
+      max-width: 50px;
+      margin-right: 20px;
+    }
   </style>
 </head>
 <body>
-  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
-  Extra push-ups don't count towards future days<br>
-  Missed days can't be made up</h2>
+  <div class="header">
+    <img src="path/to/your/logo.png" alt="Logo" class="logo">
+    <h2>Select ✅ for each day you complete five (5) push-ups<br> 
+    Extra push-ups don't count towards future days<br>
+    Missed days can't be made up</h2>
+  </div>
 
   <table id="pushup-tracker">
     <thead>
