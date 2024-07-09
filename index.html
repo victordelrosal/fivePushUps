@@ -55,7 +55,6 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-    console.log("Firebase initialized");
 
     function confirmCheck(checkbox, name, dateString) {
       const today = new Date();
@@ -188,7 +187,7 @@
 
         if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
           const xMark = document.createElement("span");
-          xMark.textContent = "ｘ";
+          xMark.textContent = "❌"; // Corrected X symbol
           xMark.classList.add("not-checked");
           xMark.onclick = () => {
             alert("You can only check off today's date.");
