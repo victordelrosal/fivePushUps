@@ -233,8 +233,9 @@
       return dates;
     }
 
-    function loadData() {
-      getDocs(collection(db, "pushups")).then((querySnapshot) => {
+    async function loadData() {
+      try {
+        const querySnapshot = await getDocs(collection(db, "pushups"));
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const name = data.name;
@@ -257,9 +258,10 @@
             checkMark.parentElement.classList.add("completed");
           }
         });
-      }).catch((error) => {
+        console.log("Data successfully loaded!");
+      } catch (error) {
         console.error("Error loading data: ", error);
-      });
+      }
     }
 
     // Call generateTable with start and end dates
