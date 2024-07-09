@@ -130,7 +130,7 @@
     }
 
     function enterEditMode() {
-      const spans = document.querySelectorAll('td span');
+      const spans = document.querySelectorAll('td span.not-checked');
       spans.forEach(span => {
         span.addEventListener('click', function() {
           const isChecked = span.textContent === '✅';
