@@ -71,13 +71,6 @@
     <tbody>
       <!-- Player rows dynamically generated -->
     </tbody>
-    <tfoot>
-      <tr>
-        <th>Daily Total</th>
-        <!-- Daily totals dynamically generated -->
-        <th>Overall Total</th>
-      </tr>
-    </tfoot>
   </table>
 
   <script type="module">
@@ -185,10 +178,6 @@
         headerRow.appendChild(th);
       });
 
-      const overallTotalTh = document.createElement("th");
-      overallTotalTh.textContent = "Overall Total";
-      headerRow.appendChild(overallTotalTh);
-
       const tbody = table.querySelector("tbody");
       if (!tbody) {
         console.error("Table body not found");
@@ -212,10 +201,6 @@
           td.appendChild(checkbox);
           row.appendChild(td);
         });
-
-        const playerTotalTd = document.createElement("td");
-        playerTotalTd.id = `${player.idPrefix}-total`;
-        row.appendChild(playerTotalTd);
 
         tbody.appendChild(row);
       });
@@ -303,7 +288,7 @@
           }
         });
         console.log("Data successfully loaded!");
-        updateTallies();
+
       } catch (error) {
         console.error("Error loading data: ", error);
       }
