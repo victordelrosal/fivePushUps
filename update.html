@@ -70,7 +70,8 @@
       console.log(`Timestamp: ${timestamp}`);
 
       // Document ID should match the format used in your application
-      const docId = `${name}_${date.replace(/\//g, '-')}`;
+      const formattedDate = date.replace(/\//g, '-');
+      const docId = `${name.toLowerCase()}-${formattedDate}`;
       console.log(`Updating document with ID: ${docId}`);
 
       try {
