@@ -27,7 +27,6 @@
       color: white;
     }
     .completed { background-color: #90ee90; }
-    .missed { background-color: #d3d3d3; }
     .timestamp {
       font-size: 0.8em;
       color: #666;
@@ -187,7 +186,6 @@
       });
 
       disableFutureDates();
-      markMissedDates();
       loadData();
     }
 
@@ -204,29 +202,6 @@
         }
       });
     }
-
-    function markMissedDates() {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // Resetting time to start of the day for accurate comparison
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-    
-      checkboxes.forEach(checkbox => {
-        const [_, month, day, year] = checkbox.id.split("-");
-        const checkDate = new Date(`${month}/${day}/${year}`);
-        checkDate.setHours(0, 0, 0, 0); // Resetting time to start of the day for accurate comparison
-    
-        if (checkDate < today && !checkbox.checked) {
-          const xMark = document.createElement("span");
-          xMark.textContent = "ｘ";
-          xMark.classList.add("not-checked");
-          xMark.onclick = () => {
-            alert("You can only check off today's date.");
-          };
-          checkbox.parentElement.replaceChild(xMark, checkbox);
-        }
-      });
-    }
-
 
     function generateDateRange(startDate, endDate) {
       const dates = [];
@@ -287,14 +262,5 @@
       generateTable("2024-07-07", "2024-08-21");
     });
   </script>
-  <script type="module">
-    import { db, confirmCheck, generateTable, disableFutureDates, markMissedDates, generateDateRange, loadData } from './shared.js';
-
-    // Call generateTable with start and end dates
-    document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2024-07-07", "2024-08-21");
-    });
-  </script>
-  
 </body>
 </html>
