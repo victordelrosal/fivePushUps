@@ -21,6 +21,7 @@
       border: 2px solid #1e90ff;
       padding: 10px;
       text-align: center;
+      position: relative; /* Added for positioning */
     }
     th {
       background-color: #1e90ff;
@@ -129,20 +130,18 @@
     }
 
     function enterEditMode() {
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-      checkboxes.forEach(checkbox => {
-        checkbox.disabled = false;
-        checkbox.parentElement.classList.remove("completed");
-        checkbox.parentElement.innerHTML = ""; // Clear existing content
-        checkbox.checked = false;
-
-        const newCheckbox = document.createElement("input");
-        newCheckbox.type = "checkbox";
-        newCheckbox.onclick = () => confirmCheck(newCheckbox, checkbox.dataset.name, checkbox.dataset.date);
-
-        const td = document.createElement("td");
-        td.appendChild(newCheckbox);
-        checkbox.parentElement.appendChild(td);
+      const spans = document.querySelectorAll('td span');
+      spans.forEach(span => {
+        span.addEventListener('click', function() {
+          const isChecked = span.textContent === '✅';
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.style.display = 'none';
+          checkbox.checked = !isChecked;
+          span.textContent = checkbox.checked ? '✅' : '';
+          span.parentElement.replaceChild(checkbox, span);
+          confirmCheck(checkbox, checkbox.dataset.name, checkbox.dataset.date);
+        });
       });
     }
 
@@ -203,21 +202,29 @@
           const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
+          checkbox.style.display = "none";
           checkbox.id = checkboxId;
           checkbox.dataset.name = player.name;
           checkbox.dataset.date = date;
           const td = document.createElement("td");
-          td.appendChild(checkbox);
+          const checkMark = document.createElement("span");
+          checkMark.textContent = "";
+          checkMark.classList.add("not-checked");
+          checkMark.addEventListener('click', function() {
+            const isChecked = checkMark.textContent === '✅';
+            checkMark.textContent = isChecked ? '' : '✅';
+            confirmCheck(checkbox, player.name, date);
+          });
+          td.appendChild(checkMark);
           row.appendChild(td);
         });
 
         tbody.appendChild(row);
       });
 
-      loadData(); // Load data from Firebase
-
       disableFutureDates();
       markMissedDates();
+      loadData();
     }
 
     function disableFutureDates() {
@@ -249,9 +256,9 @@
           const xMark = document.createElement("span");
           xMark.textContent = "ｘ";
           xMark.classList.add("not-checked");
-          xMark.onclick = () => {
+          xMark.addEventListener('click', function() {
             alert("You can only check off today's date.");
-          };
+          });
           checkbox.parentElement.replaceChild(xMark, checkbox);
         }
       });
@@ -259,14 +266,11 @@
 
     function generateDateRange(startDate, endDate) {
       const dates = [];
-      const currentDate = new Date(startDate);
-      const end = new Date(endDate);
+      let currentDate = new Date(startDate);
 
-      while (currentDate <= end) {
-        const day = currentDate.getDate();
-        const month = currentDate.getMonth() + 1;
-        const year = currentDate.getFullYear();
-        dates.push(`${month}/${day}/${year}`);
+      while (currentDate <= endDate) {
+        const dateString = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+        dates.push(dateString);
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -274,47 +278,35 @@
     }
 
     async function loadData() {
-      try {
-        const querySnapshot = await getDocs(collection(db, "pushups"));
-        querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const name = data.name;
-          const date = data.date;
-          const timestamp = data.timestamp;
+      const pushupRef = collection(db, "pushups");
+      const snapshot = await getDocs(pushupRef);
+      snapshot.forEach(doc => {
+        const { name, date } = doc.data();
+        const checkbox = document.getElementById(`${name.replace(/\s/g, '').toLowerCase()}-${date.replace(/\//g, '-')}`);
+        if (checkbox) {
+          checkbox.checked = true;
+          checkbox.disabled = true;
 
-          console.log("Loaded data:", data);  // Debugging statement
+          const checkMark = document.createElement("span");
+          checkMark.textContent = "✅";
+          checkbox.parentElement.replaceChild(checkMark, checkbox);
 
-          const formattedDate = date.replace(/\//g, '-');
-          const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
-          console.log("Checkbox ID:", checkboxId);  // Debugging statement
+          const timestamp = new Date().toLocaleString();
+          const timestampElement = document.createElement("div");
+          timestampElement.classList.add("timestamp");
+          timestampElement.textContent = `Confirmed at: ${timestamp}`;
+          checkMark.parentElement.appendChild(timestampElement);
 
-          const checkbox = document.getElementById(checkboxId);
-
-          if (checkbox) {
-            const checkMark = document.createElement("span");
-            checkMark.textContent = "✅";
-            checkbox.parentElement.replaceChild(checkMark, checkbox);
-
-            const timestampElement = document.createElement("div");
-            timestampElement.classList.add("timestamp");
-            timestampElement.textContent = `Confirmed at: ${timestamp}`;
-            checkMark.parentElement.appendChild(timestampElement);
-
-            checkMark.parentElement.classList.add("completed");
-          } else {
-            console.error("Checkbox not found for ID:", checkboxId);  // Debugging statement
-          }
-        });
-        console.log("Data successfully loaded!");
-      } catch (error) {
-        console.error("Error loading data: ", error);
-      }
+          console.log(`${name} has completed push-ups on ${date} (loaded from Firestore)`);
+          checkMark.parentElement.classList.add("completed");
+        }
+      });
     }
 
-    // Call generateTable with start and end dates
-    document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2024-07-08", "2024-08-21");
-    });
+    // Initial table generation
+    const startDate = new Date("2024-01-01"); // Replace with your start date
+    const endDate = new Date("2024-12-31");   // Replace with your end date
+    generateTable(startDate, endDate);
   </script>
 </body>
 </html>
