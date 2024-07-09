@@ -28,11 +28,13 @@
     }
     .completed { background-color: #90ee90; }
     .missed { background-color: #d3d3d3; }
-    .greyed-out { background-color: #d3d3d3; }
     .timestamp {
       font-size: 0.8em;
       color: #666;
       margin-top: 5px;
+    }
+    .not-checked {
+      cursor: pointer;
     }
   </style>
 </head>
@@ -81,6 +83,7 @@
       const checkDate = new Date(dateString);
 
       if (checkDate.toDateString() !== today.toDateString()) {
+        alert("You can only check off today's date.");
         checkbox.checked = false;
         return;
       }
@@ -183,11 +186,12 @@
         tbody.appendChild(row);
       });
 
-      disablePastAndFutureDates();  // Updated function call
+      disableFutureDates();
+      markMissedDates();
       loadData();
     }
 
-    function disablePastAndFutureDates() {  // Updated function name
+    function disableFutureDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -195,9 +199,31 @@
         const [_, month, day, year] = checkbox.id.split("-");
         const checkDate = new Date(`${month}/${day}/${year}`);
 
-        if (checkDate < today || checkDate > today) {
+        if (checkDate > today) {
           checkbox.disabled = true;
-          checkbox.parentElement.classList.add("greyed-out");
+        }
+      });
+    }
+
+    function markMissedDates() {
+      const today = new Date();
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
+          const xMark = document.createElement("span");
+          xMark.textContent = "ｘ";
+          xMark.classList.add("not-checked");
+          xMark.onclick = () => {
+            alert("You can only check off today's date.");
+          };
+          checkbox.parentElement.replaceChild(xMark, checkbox);
         }
       });
     }
@@ -261,6 +287,14 @@
       generateTable("2024-07-07", "2024-08-21");
     });
   </script>
+  <script type="module">
+    import { db, confirmCheck, generateTable, disableFutureDates, markMissedDates, generateDateRange, loadData } from './shared.js';
 
+    // Call generateTable with start and end dates
+    document.addEventListener("DOMContentLoaded", () => {
+      generateTable("2024-07-07", "2024-08-21");
+    });
+  </script>
+  
 </body>
 </html>
