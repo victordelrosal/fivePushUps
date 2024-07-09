@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Push-up Accountability Tracker - Admin</title>
+  <title>Push-up Accountability Tracker - God Mode</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -36,10 +36,19 @@
     .not-checked {
       cursor: pointer;
     }
+    .edit-button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background-color: #1e90ff;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
   </style>
 </head>
 <body>
-  <h2>Admin Push-up Accountability Tracker</h2>
+  <h2>God Mode: Edit Push-up Tracker</h2>
 
   <table id="pushup-tracker">
     <thead>
@@ -53,10 +62,12 @@
     </tbody>
   </table>
 
+  <button class="edit-button" onclick="enterEditMode()">Enter Edit Mode</button>
+
   <script type="module">
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDocs, collection, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
     // Your web app's Firebase configuration
     const firebaseConfig = {
@@ -74,26 +85,65 @@
     const db = getFirestore(app);
     console.log("Firebase initialized");
 
-    async function toggleCheck(td, name, dateString) {
-      const isCompleted = td.classList.contains("completed");
+    function confirmCheck(checkbox, name, dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-      const formattedDate = dateString.replace(/\//g, '-');
-      const docId = `${name.toLowerCase()}-${formattedDate}`;
+      const checkDate = new Date(dateString);
 
-      if (isCompleted) {
-        await deleteDoc(doc(db, "pushups", docId));
-        td.classList.remove("completed");
-        td.innerHTML = `<input type="checkbox" onclick="toggleCheck(this.parentElement, '${name}', '${dateString}')" />`;
-      } else {
+      if (checkDate.toDateString() !== today.toDateString()) {
+        alert("You can only check off today's date.");
+        checkbox.checked = false;
+        return;
+      }
+
+      if (confirm(`Confirm that ${name} has completed five or more push-ups today, ${dateString}.`)) {
+        checkbox.disabled = true;
+
+        const checkMark = document.createElement("span");
+        checkMark.textContent = "✅";
+        checkbox.parentElement.replaceChild(checkMark, checkbox);
+        
         const timestamp = new Date().toLocaleString();
-        await setDoc(doc(db, "pushups", docId), {
+        const timestampElement = document.createElement("div");
+        timestampElement.classList.add("timestamp");
+        timestampElement.textContent = `Confirmed at: ${timestamp}`;
+        checkMark.parentElement.appendChild(timestampElement);
+
+        console.log(`${name} confirmed 5 push-ups on ${dateString} at ${timestamp}`);
+        checkMark.parentElement.classList.add("completed");
+
+        // Save to Firestore
+        setDoc(doc(db, "pushups", `${name}_${dateString.replace(/\//g, '-')}`), {
           name: name,
           date: dateString,
           timestamp: timestamp
+        }).then(() => {
+          console.log("Data successfully written!");
+        }).catch((error) => {
+          console.error("Error writing document: ", error);
         });
-        td.classList.add("completed");
-        td.innerHTML = `✅<div class="timestamp">Confirmed at: ${timestamp}</div>`;
+      } else {
+        checkbox.checked = false;
       }
+    }
+
+    function enterEditMode() {
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+      checkboxes.forEach(checkbox => {
+        checkbox.disabled = false;
+        checkbox.parentElement.classList.remove("completed");
+        checkbox.parentElement.innerHTML = ""; // Clear existing content
+        checkbox.checked = false;
+
+        const newCheckbox = document.createElement("input");
+        newCheckbox.type = "checkbox";
+        newCheckbox.onclick = () => confirmCheck(newCheckbox, checkbox.dataset.name, checkbox.dataset.date);
+
+        const td = document.createElement("td");
+        td.appendChild(newCheckbox);
+        checkbox.parentElement.appendChild(td);
+      });
     }
 
     function generateTable(startDate, endDate) {
@@ -149,17 +199,61 @@
         row.appendChild(playerName);
 
         dates.forEach(date => {
+          const [month, day, year] = date.split("/");
+          const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = checkboxId;
+          checkbox.dataset.name = player.name;
+          checkbox.dataset.date = date;
           const td = document.createElement("td");
-          td.classList.add("editable");
-          td.onclick = () => toggleCheck(td, player.name, date);
-          td.innerHTML = `<input type="checkbox" onclick="toggleCheck(this.parentElement, '${player.name}', '${date}')" />`;
+          td.appendChild(checkbox);
           row.appendChild(td);
         });
 
         tbody.appendChild(row);
       });
 
+      disableFutureDates();
+      markMissedDates();
       loadData();
+    }
+
+    function disableFutureDates() {
+      const today = new Date();
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+
+        if (checkDate > today) {
+          checkbox.disabled = true;
+        }
+      });
+    }
+
+    function markMissedDates() {
+      const today = new Date();
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
+          const xMark = document.createElement("span");
+          xMark.textContent = "ｘ";
+          xMark.classList.add("not-checked");
+          xMark.onclick = () => {
+            alert("You can only check off today's date.");
+          };
+          checkbox.parentElement.replaceChild(xMark, checkbox);
+        }
+      });
     }
 
     function generateDateRange(startDate, endDate) {
@@ -187,14 +281,27 @@
           const date = data.date;
           const timestamp = data.timestamp;
 
-          const formattedDate = date.replace(/\//g, '-');
-          const td = document.querySelector(`td[onclick*='${name}'][onclick*='${date}']`);
+          console.log("Loaded data:", data);  // Debugging statement
 
-          if (td) {
-            td.classList.add("completed");
-            td.innerHTML = `✅<div class="timestamp">Confirmed at: ${timestamp}</div>`;
+          const formattedDate = date.replace(/\//g, '-');
+          const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
+          console.log("Checkbox ID:", checkboxId);  // Debugging statement
+
+          const checkbox = document.getElementById(checkboxId);
+
+          if (checkbox) {
+            const checkMark = document.createElement("span");
+            checkMark.textContent = "✅";
+            checkbox.parentElement.replaceChild(checkMark, checkbox);
+
+            const timestampElement = document.createElement("div");
+            timestampElement.classList.add("timestamp");
+            timestampElement.textContent = `Confirmed at: ${timestamp}`;
+            checkMark.parentElement.appendChild(timestampElement);
+
+            checkMark.parentElement.classList.add("completed");
           } else {
-            console.error("Cell not found for ID:", checkboxId);
+            console.error("Checkbox not found for ID:", checkboxId);  // Debugging statement
           }
         });
         console.log("Data successfully loaded!");
@@ -207,8 +314,6 @@
     document.addEventListener("DOMContentLoaded", () => {
       generateTable("2024-07-08", "2024-08-21");
     });
-
-    window.toggleCheck = toggleCheck;
   </script>
 </body>
 </html>
