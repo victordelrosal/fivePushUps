@@ -37,7 +37,6 @@
       cursor: pointer;
     }
   </style>
-  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore-compat.js"></script>
   <script>
@@ -56,6 +55,7 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
+    // Save check confirmation to Firestore
     function confirmCheck(checkbox, name, dateString) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -85,7 +85,7 @@
         checkMark.parentElement.classList.add("completed");
 
         // Save to Firestore
-        db.collection("pushups").add({
+        db.collection("pushups").doc(`${name}_${dateString}`).set({
           name: name,
           date: dateString,
           timestamp: timestamp
@@ -99,6 +99,7 @@
       }
     }
 
+    // Generate table
     function generateTable(startDate, endDate) {
       const table = document.getElementById("pushup-tracker");
       const players = [
@@ -141,8 +142,10 @@
 
       disableFutureDates();
       markMissedDates();
+      loadData();
     }
 
+    // Disable future dates checkboxes
     function disableFutureDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -157,6 +160,7 @@
       });
     }
 
+    // Mark missed dates with "x"
     function markMissedDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -180,6 +184,7 @@
       });
     }
 
+    // Generate date range for table
     function generateDateRange(startDate, endDate) {
       const dates = [];
       const currentDate = new Date(startDate);
@@ -196,6 +201,35 @@
       return dates;
     }
 
+    // Load data from Firestore and mark completed dates
+    function loadData() {
+      db.collection("pushups").get().then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const name = data.name;
+          const date = data.date;
+          const timestamp = data.timestamp;
+
+          const checkboxId = `${name.toLowerCase()}-${date.replace(/\//g, '-')}`;
+          const checkbox = document.getElementById(checkboxId);
+
+          if (checkbox) {
+            const checkMark = document.createElement("span");
+            checkMark.textContent = "✅";
+            checkbox.parentElement.replaceChild(checkMark, checkbox);
+
+            const timestampElement = document.createElement("div");
+            timestampElement.classList.add("timestamp");
+            timestampElement.textContent = `Confirmed at: ${timestamp}`;
+            checkMark.parentElement.appendChild(timestampElement);
+
+            checkMark.parentElement.classList.add("completed");
+          }
+        });
+      });
+    }
+
+    // Call generateTable with start and end dates
     generateTable("2024-07-08", "2024-08-21");
   </script>
 </body>
