@@ -59,10 +59,15 @@
 
     document.getElementById('updateForm').addEventListener('submit', async (e) => {
       e.preventDefault();
+      console.log("Form submitted");
 
       const name = e.target.name.value;
       const date = e.target.date.value;
       const timestamp = e.target.timestamp.value;
+
+      console.log(`Player Name: ${name}`);
+      console.log(`Date: ${date}`);
+      console.log(`Timestamp: ${timestamp}`);
 
       // Document ID should match the format used in your application
       const docId = `${name}_${date.replace(/\//g, '-')}`;
