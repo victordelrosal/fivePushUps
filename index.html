@@ -37,32 +37,31 @@
       cursor: pointer;
     }
   </style>
-</head>
-<body>
-  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
-  Extra push-ups don't count towards future days<br>
-  Missed days can't be made up</h2>
-
-  <table id="pushup-tracker">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <!-- Dates dynamically generated -->
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Player rows dynamically generated -->
-    </tbody>
-  </table>
-
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
+  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore-compat.js"></script>
   <script>
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
+      authDomain: "fivepushups-d5d82.firebaseapp.com",
+      projectId: "fivepushups-d5d82",
+      storageBucket: "fivepushups-d5d82.appspot.com",
+      messagingSenderId: "472818589501",
+      appId: "1:472818589501:web:ef6402c4e19842c0e86f54",
+      measurementId: "G-TJ5VSMC86Y"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     function confirmCheck(checkbox, name, dateString) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
       const checkDate = new Date(dateString);
 
-      // Check if the date is not today's date
       if (checkDate.toDateString() !== today.toDateString()) {
         alert("You can only check off today's date.");
         checkbox.checked = false;
@@ -84,6 +83,17 @@
 
         console.log(`${name} confirmed 5 push-ups on ${dateString} at ${timestamp}`);
         checkMark.parentElement.classList.add("completed");
+
+        // Save to Firestore
+        db.collection("pushups").add({
+          name: name,
+          date: dateString,
+          timestamp: timestamp
+        }).then(() => {
+          console.log("Data successfully written!");
+        }).catch((error) => {
+          console.error("Error writing document: ", error);
+        });
       } else {
         checkbox.checked = false;
       }
@@ -95,22 +105,19 @@
         { name: "Adam", idPrefix: "adam" },
         { name: "Colin", idPrefix: "colin" },
         { name: "Colm", idPrefix: "colm" }
-        // Add more players as needed
       ];
 
       const dates = generateDateRange(startDate, endDate);
 
-      // Generate table header
       const headerRow = table.rows[0];
       dates.forEach(date => {
         const parts = date.split("/");
-        const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`; // Remove leading zero
+        const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
         const th = document.createElement("th");
         th.textContent = formattedDate;
         headerRow.appendChild(th);
       });
 
-      // Generate player rows
       players.forEach(player => {
         const row = document.createElement("tr");
         const playerName = document.createElement("td");
@@ -158,7 +165,6 @@
         const [_, month, day, year] = checkbox.id.split("-");
         const checkDate = new Date(`${month}/${day}/${year}`);
 
-        // Check if the date is yesterday and checkbox is not checked
         const yesterday = new Date();
         yesterday.setDate(today.getDate() - 1);
 
@@ -181,7 +187,7 @@
 
       while (currentDate <= end) {
         const day = currentDate.getDate();
-        const month = currentDate.getMonth() + 1; // January is 0!
+        const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
         dates.push(`${month}/${day}/${year}`);
         currentDate.setDate(currentDate.getDate() + 1);
@@ -190,7 +196,6 @@
       return dates;
     }
 
-    // Call generateTable with start and end dates
     generateTable("2024-07-08", "2024-08-21");
   </script>
 </body>
