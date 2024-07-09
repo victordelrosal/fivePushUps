@@ -33,8 +33,9 @@
       color: #666;
       margin-top: 5px;
     }
-    .not-checked {
-      cursor: pointer;
+    .disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
     }
   </style>
 </head>
@@ -59,7 +60,7 @@
     // Import the functions you need from the SDKs you need
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
-
+  
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
@@ -70,29 +71,18 @@
       appId: "1:472818589501:web:ef6402c4e19842c0e86f54",
       measurementId: "G-TJ5VSMC86Y"
     };
-
+  
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     console.log("Firebase initialized");
 
     function confirmCheck(checkbox, name, dateString) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      const checkDate = new Date(dateString);
-
-      if (checkDate.toDateString() !== today.toDateString()) {
-        alert("You can only check off today's date.");
-        checkbox.checked = false;
-        return;
-      }
-
       if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
         checkbox.disabled = true;
 
         const checkMark = document.createElement("span");
-        checkMark.textContent = "✅";
+        checkMark.textContent = "✅"; 
         checkbox.parentElement.replaceChild(checkMark, checkbox);
         
         const timestamp = new Date().toLocaleString();
@@ -114,8 +104,6 @@
         }).catch((error) => {
           console.error("Error writing document: ", error);
         });
-      } else {
-        checkbox.checked = false;
       }
     }
 
@@ -125,7 +113,7 @@
         console.error("Table element not found");
         return;
       }
-
+  
       const players = [
         { name: "Adam", idPrefix: "adam" },
         { name: "Colin", idPrefix: "colin" },
@@ -144,13 +132,13 @@
       ];
 
       const dates = generateDateRange(startDate, endDate);
-
+  
       const headerRow = table.querySelector("thead tr");
       if (!headerRow) {
         console.error("Header row not found");
         return;
       }
-
+  
       dates.forEach(date => {
         const parts = date.split("/");
         const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
@@ -158,19 +146,19 @@
         th.textContent = formattedDate;
         headerRow.appendChild(th);
       });
-
+  
       const tbody = table.querySelector("tbody");
       if (!tbody) {
         console.error("Table body not found");
         return;
       }
-
+  
       players.forEach(player => {
         const row = document.createElement("tr");
         const playerName = document.createElement("td");
         playerName.textContent = player.name;
         row.appendChild(playerName);
-
+  
         dates.forEach(date => {
           const [month, day, year] = date.split("/");
           const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
@@ -182,16 +170,15 @@
           td.appendChild(checkbox);
           row.appendChild(td);
         });
-
+  
         tbody.appendChild(row);
       });
-
-      disableFutureDates();
-      markMissedDates();
+  
+      disablePastAndFutureDates();
       loadData();
     }
 
-    function disableFutureDates() {
+    function disablePastAndFutureDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -199,31 +186,9 @@
         const [_, month, day, year] = checkbox.id.split("-");
         const checkDate = new Date(`${month}/${day}/${year}`);
 
-        if (checkDate > today) {
+        if (checkDate < today || checkDate > today) {
           checkbox.disabled = true;
-        }
-      });
-    }
-
-    function markMissedDates() {
-      const today = new Date();
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-      checkboxes.forEach(checkbox => {
-        const [_, month, day, year] = checkbox.id.split("-");
-        const checkDate = new Date(`${month}/${day}/${year}`);
-
-        const yesterday = new Date();
-        yesterday.setDate(today.getDate() - 1);
-
-        if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
-          const xMark = document.createElement("span");
-          xMark.textContent = "ｘ";
-          xMark.classList.add("not-checked");
-          xMark.onclick = () => {
-            alert("You can only check off today's date.");
-          };
-          checkbox.parentElement.replaceChild(xMark, checkbox);
+          checkbox.parentElement.classList.add("disabled");
         }
       });
     }
@@ -281,14 +246,6 @@
         console.error("Error loading data: ", error);
       }
     }
-
-    // Call generateTable with start and end dates
-    document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2024-07-07", "2024-08-21");
-    });
-  </script>
-  <script type="module">
-    import { db, confirmCheck, generateTable, disableFutureDates, markMissedDates, generateDateRange, loadData } from './shared.js';
 
     // Call generateTable with start and end dates
     document.addEventListener("DOMContentLoaded", () => {
