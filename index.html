@@ -242,7 +242,10 @@
           const date = data.date;
           const timestamp = data.timestamp;
 
-          const checkboxId = `${name.toLowerCase()}-${date.replace(/\//g, '-')}`;
+          console.log("Loaded data:", data);  // Debugging statement
+
+          const formattedDate = date.replace(/\//g, '-');
+          const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
           const checkbox = document.getElementById(checkboxId);
 
           if (checkbox) {
@@ -256,6 +259,8 @@
             checkMark.parentElement.appendChild(timestampElement);
 
             checkMark.parentElement.classList.add("completed");
+          } else {
+            console.error("Checkbox not found for ID:", checkboxId);  // Debugging statement
           }
         });
         console.log("Data successfully loaded!");
