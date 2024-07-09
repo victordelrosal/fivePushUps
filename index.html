@@ -28,13 +28,11 @@
     }
     .completed { background-color: #90ee90; }
     .missed { background-color: #d3d3d3; }
+    .greyed-out { background-color: #d3d3d3; }
     .timestamp {
       font-size: 0.8em;
       color: #666;
       margin-top: 5px;
-    }
-    .not-checked {
-      cursor: pointer;
     }
   </style>
 </head>
@@ -77,6 +75,16 @@
     console.log("Firebase initialized");
 
     function confirmCheck(checkbox, name, dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const checkDate = new Date(dateString);
+
+      if (checkDate.toDateString() !== today.toDateString()) {
+        checkbox.checked = false;
+        return;
+      }
+
       if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
         checkbox.disabled = true;
 
@@ -175,12 +183,11 @@
         tbody.appendChild(row);
       });
 
-      disableFutureDates();
-      markMissedDates();
+      disablePastAndFutureDates();  // Updated function call
       loadData();
     }
 
-    function disableFutureDates() {
+    function disablePastAndFutureDates() {  // Updated function name
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
@@ -188,23 +195,9 @@
         const [_, month, day, year] = checkbox.id.split("-");
         const checkDate = new Date(`${month}/${day}/${year}`);
 
-        if (checkDate > today) {
+        if (checkDate < today || checkDate > today) {
           checkbox.disabled = true;
-        }
-      });
-    }
-
-    function markMissedDates() {
-      const today = new Date();
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-
-      checkboxes.forEach(checkbox => {
-        const [_, month, day, year] = checkbox.id.split("-");
-        const checkDate = new Date(`${month}/${day}/${year}`);
-
-        if (checkDate < today && !checkbox.checked) {
-          checkbox.disabled = true;
-          checkbox.parentElement.classList.add("missed");
+          checkbox.parentElement.classList.add("greyed-out");
         }
       });
     }
@@ -268,5 +261,6 @@
       generateTable("2024-07-07", "2024-08-21");
     });
   </script>
+
 </body>
 </html>
