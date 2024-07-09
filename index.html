@@ -10,8 +10,8 @@
       background-color: #f0f8ff;
       padding: 20px;
     }
-    h3 {
-      color: #0020A9;
+    h2 {
+      color: #1e90ff;
     }
     table {
       border-collapse: collapse;
@@ -35,49 +35,23 @@
     .not-checked {
       cursor: pointer;
     }
-    .header {
-      display: flex;
-      align-items: center;
-    }
-    .logo {
-      max-width: 50px;
-      margin-right: 20px;
-    }
-    .small-dark-text {
-      font-size: 0.8em;
-      color: #333; /* Very dark grey */
-    }
-    .tally-row, .tally-column {
-      font-weight: bold;
-      background-color: #e0ffff;
-    }
   </style>
 </head>
 <body>
-  <div class="header">
-    <img src="https://raw.githubusercontent.com/victordelrosal/fivePushUps/main/b-logo.png" alt="Logo" class="logo">
-    <h3>Select ✅ for each day you complete five (5) push-ups<br> 
-    <span class="small-dark-text">Extra push-ups don't count towards future days</span></h3>
-  </div>
+  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
+  Extra push-ups don't count towards future days<br>
+  Missed days can't be made up</h2>
 
   <table id="pushup-tracker">
     <thead>
       <tr>
         <th>Player</th>
         <!-- Dates dynamically generated -->
-        <th>Total</th>
       </tr>
     </thead>
     <tbody>
       <!-- Player rows dynamically generated -->
     </tbody>
-    <tfoot>
-      <tr>
-        <th></th>
-        <!-- Daily totals dynamically generated -->
-        <th></th>
-      </tr>
-    </tfoot>
   </table>
 
   <script type="module">
@@ -136,7 +110,6 @@
           timestamp: timestamp
         }).then(() => {
           console.log("Data successfully written!");
-          updateTallies();
         }).catch((error) => {
           console.error("Error writing document: ", error);
         });
@@ -185,10 +158,6 @@
         headerRow.appendChild(th);
       });
 
-      const overallTotalTh = document.createElement("th");
-      overallTotalTh.textContent = "Overall Total";
-      headerRow.appendChild(overallTotalTh);
-
       const tbody = table.querySelector("tbody");
       if (!tbody) {
         console.error("Table body not found");
@@ -213,28 +182,8 @@
           row.appendChild(td);
         });
 
-        const playerTotalTd = document.createElement("td");
-        playerTotalTd.id = `${player.idPrefix}-total`;
-        row.appendChild(playerTotalTd);
-
         tbody.appendChild(row);
       });
-
-      const footerRow = table.querySelector("tfoot tr");
-      if (!footerRow) {
-        console.error("Footer row not found");
-        return;
-      }
-
-      dates.forEach((date, index) => {
-        const dailyTotalTd = document.createElement("td");
-        dailyTotalTd.id = `daily-total-${index}`;
-        footerRow.appendChild(dailyTotalTd);
-      });
-
-      const overallTotalTd = document.createElement("td");
-      overallTotalTd.id = `overall-total`;
-      footerRow.appendChild(overallTotalTd);
 
       disableFutureDates();
       loadData();
@@ -303,52 +252,14 @@
           }
         });
         console.log("Data successfully loaded!");
-        updateTallies();
       } catch (error) {
         console.error("Error loading data: ", error);
       }
     }
 
-    function updateTallies() {
-      const rows = document.querySelectorAll("#pushup-tracker tbody tr");
-      const datesCount = document.querySelectorAll("#pushup-tracker thead th").length - 2; // Exclude Player and Total columns
-      let overallTotal = 0;
-
-      // Update player totals
-      rows.forEach(row => {
-        let playerTotal = 0;
-        for (let i = 1; i <= datesCount; i++) { // Start from 1 to skip the player name
-          const cell = row.cells[i];
-          if (cell && cell.querySelector("span")) {
-            playerTotal++;
-          }
-        }
-        const playerTotalCell = row.cells[datesCount + 1]; // The last cell in the row
-        playerTotalCell.textContent = playerTotal;
-        overallTotal += playerTotal;
-      });
-
-      // Update daily totals
-      for (let i = 0; i < datesCount; i++) {
-        let dailyTotal = 0;
-        rows.forEach(row => {
-          const cell = row.cells[i + 1]; // Start from 1 to skip the player name
-          if (cell && cell.querySelector("span")) {
-            dailyTotal++;
-          }
-        });
-        const dailyTotalCell = document.getElementById(`daily-total-${i}`);
-        dailyTotalCell.textContent = dailyTotal;
-      }
-
-      // Update overall total
-      const overallTotalCell = document.getElementById("overall-total");
-      overallTotalCell.textContent = overallTotal;
-    }
-
     // Call generateTable with start and end dates
     document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2024-07-08", "2024-08-21");
+      generateTable("2024-07-07", "2024-08-21");
     });
   </script>
 </body>
