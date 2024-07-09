@@ -43,10 +43,6 @@
       max-width: 50px;
       margin-right: 20px;
     }
-    .tally-row, .tally-column {
-      font-weight: bold;
-      background-color: #e0ffff;
-    }
   </style>
 </head>
 <body>
@@ -62,19 +58,11 @@
       <tr>
         <th>Player</th>
         <!-- Dates dynamically generated -->
-        <th>Total</th>
       </tr>
     </thead>
     <tbody>
       <!-- Player rows dynamically generated -->
     </tbody>
-    <tfoot>
-      <tr>
-        <th>Daily Total</th>
-        <!-- Daily totals dynamically generated -->
-        <th>Overall Total</th>
-      </tr>
-    </tfoot>
   </table>
 
   <script type="module">
@@ -110,7 +98,7 @@
         return;
       }
 
-      if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
+      if (confirm(I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.)) {
         checkbox.disabled = true;
 
         const checkMark = document.createElement("span");
@@ -120,20 +108,19 @@
         const timestamp = new Date().toLocaleString();
         const timestampElement = document.createElement("div");
         timestampElement.classList.add("timestamp");
-        timestampElement.textContent = `Confirmed at: ${timestamp}`;
+        timestampElement.textContent = Confirmed at: ${timestamp};
         checkMark.parentElement.appendChild(timestampElement);
 
-        console.log(`${name} confirmed 5 push-ups on ${dateString} at ${timestamp}`);
+        console.log(${name} confirmed 5 push-ups on ${dateString} at ${timestamp});
         checkMark.parentElement.classList.add("completed");
 
         // Save to Firestore
-        setDoc(doc(db, "pushups", `${name}_${dateString.replace(/\//g, '-')}`), {
+        setDoc(doc(db, "pushups", ${name}_${dateString.replace(/\//g, '-')}), {
           name: name,
           date: dateString,
           timestamp: timestamp
         }).then(() => {
           console.log("Data successfully written!");
-          updateTallies();
         }).catch((error) => {
           console.error("Error writing document: ", error);
         });
@@ -176,15 +163,11 @@
 
       dates.forEach(date => {
         const parts = date.split("/");
-        const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
+        const formattedDate = ${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)};
         const th = document.createElement("th");
         th.textContent = formattedDate;
         headerRow.appendChild(th);
       });
-
-      const overallTotalTh = document.createElement("th");
-      overallTotalTh.textContent = "Overall Total";
-      headerRow.appendChild(overallTotalTh);
 
       const tbody = table.querySelector("tbody");
       if (!tbody) {
@@ -200,7 +183,7 @@
 
         dates.forEach(date => {
           const [month, day, year] = date.split("/");
-          const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
+          const checkboxId = ${player.idPrefix}-${month}-${day}-${year};
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
           checkbox.id = checkboxId;
@@ -210,28 +193,8 @@
           row.appendChild(td);
         });
 
-        const playerTotalTd = document.createElement("td");
-        playerTotalTd.id = `${player.idPrefix}-total`;
-        row.appendChild(playerTotalTd);
-
         tbody.appendChild(row);
       });
-
-      const footerRow = table.querySelector("tfoot tr");
-      if (!footerRow) {
-        console.error("Footer row not found");
-        return;
-      }
-
-      dates.forEach((date, index) => {
-        const dailyTotalTd = document.createElement("td");
-        dailyTotalTd.id = `daily-total-${index}`;
-        footerRow.appendChild(dailyTotalTd);
-      });
-
-      const overallTotalTd = document.createElement("td");
-      overallTotalTd.id = `overall-total`;
-      footerRow.appendChild(overallTotalTd);
 
       disableFutureDates();
       loadData();
@@ -243,7 +206,7 @@
 
       checkboxes.forEach(checkbox => {
         const [_, month, day, year] = checkbox.id.split("-");
-        const checkDate = new Date(`${month}/${day}/${year}`);
+        const checkDate = new Date(${month}/${day}/${year});
 
         if (checkDate > today) {
           checkbox.disabled = true;
@@ -260,7 +223,7 @@
         const day = currentDate.getDate();
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
-        dates.push(`${month}/${day}/${year}`);
+        dates.push(${month}/${day}/${year});
         currentDate.setDate(currentDate.getDate() + 1);
       }
 
@@ -279,7 +242,7 @@
           console.log("Loaded data:", data);  // Debugging statement
 
           const formattedDate = date.replace(/\//g, '-');
-          const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
+          const checkboxId = ${name.toLowerCase()}-${formattedDate};
           console.log("Checkbox ID:", checkboxId);  // Debugging statement
 
           const checkbox = document.getElementById(checkboxId);
@@ -291,7 +254,7 @@
 
             const timestampElement = document.createElement("div");
             timestampElement.classList.add("timestamp");
-            timestampElement.textContent = `Confirmed at: ${timestamp}`;
+            timestampElement.textContent = Confirmed at: ${timestamp};
             checkMark.parentElement.appendChild(timestampElement);
 
             checkMark.parentElement.classList.add("completed");
@@ -300,47 +263,9 @@
           }
         });
         console.log("Data successfully loaded!");
-        updateTallies();
       } catch (error) {
         console.error("Error loading data: ", error);
       }
-    }
-
-    function updateTallies() {
-      const rows = document.querySelectorAll("#pushup-tracker tbody tr");
-      const datesCount = document.querySelectorAll("#pushup-tracker thead th").length - 2; // Exclude Player and Total columns
-      let overallTotal = 0;
-
-      // Update player totals
-      rows.forEach(row => {
-        let playerTotal = 0;
-        for (let i = 1; i <= datesCount; i++) { // Start from 1 to skip the player name
-          const cell = row.cells[i];
-          if (cell && cell.querySelector("span")) {
-            playerTotal++;
-          }
-        }
-        const playerTotalCell = row.cells[datesCount + 1]; // The last cell in the row
-        playerTotalCell.textContent = playerTotal;
-        overallTotal += playerTotal;
-      });
-
-      // Update daily totals
-      for (let i = 0; i < datesCount; i++) {
-        let dailyTotal = 0;
-        rows.forEach(row => {
-          const cell = row.cells[i + 1]; // Start from 1 to skip the player name
-          if (cell && cell.querySelector("span")) {
-            dailyTotal++;
-          }
-        });
-        const dailyTotalCell = document.getElementById(`daily-total-${i}`);
-        dailyTotalCell.textContent = dailyTotal;
-      }
-
-      // Update overall total
-      const overallTotalCell = document.getElementById("overall-total");
-      overallTotalCell.textContent = overallTotal;
     }
 
     // Call generateTable with start and end dates
