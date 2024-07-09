@@ -19,10 +19,8 @@ const db = getFirestore(app);
 console.log("Firebase initialized");
 
 async function toggleCheck(cell, name, dateString) {
-  const [month, day, year] = dateString.split("/");
-  const docId = `${name}_${month}-${day}-${year}`;
-  const docRef = doc(db, "pushups", docId);
   const checkMark = cell.querySelector("span");
+  const docRef = doc(db, "pushups", `${name}_${dateString.replace(/\//g, '-')}`);
 
   if (checkMark) {
     // Remove checkmark
@@ -190,15 +188,13 @@ async function loadData() {
     const date = data.date;
     const timestamp = data.timestamp;
 
-    const [month, day, year] = date.split("/");
-    const cellId = `${name.toLowerCase().replace(/ /g, "")}-${month}-${day}-${year}`;
+    const formattedDate = date.replace(/\//g, '-');
+    const cellId = `${name.toLowerCase()}-${formattedDate}`;
     const cell = document.getElementById(cellId);
 
     if (cell) {
       cell.innerHTML = `<span>✅</span><div class="timestamp">Confirmed at: ${timestamp}</div>`;
       cell.classList.add("completed");
-    } else {
-      console.error("Cell not found for ID:", cellId);
     }
   });
 }
