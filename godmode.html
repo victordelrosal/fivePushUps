@@ -214,9 +214,10 @@
         tbody.appendChild(row);
       });
 
+      loadData(); // Load data from Firebase
+
       disableFutureDates();
       markMissedDates();
-      loadData();
     }
 
     function disableFutureDates() {
