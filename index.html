@@ -43,6 +43,10 @@
       max-width: 50px;
       margin-right: 20px;
     }
+    .tally-row, .tally-column {
+      font-weight: bold;
+      background-color: #e0ffff;
+    }
   </style>
 </head>
 <body>
@@ -58,11 +62,19 @@
       <tr>
         <th>Player</th>
         <!-- Dates dynamically generated -->
+        <th>Total</th>
       </tr>
     </thead>
     <tbody>
       <!-- Player rows dynamically generated -->
     </tbody>
+    <tfoot>
+      <tr>
+        <th>Daily Total</th>
+        <!-- Daily totals dynamically generated -->
+        <th>Overall Total</th>
+      </tr>
+    </tfoot>
   </table>
 
   <script type="module">
@@ -121,6 +133,7 @@
           timestamp: timestamp
         }).then(() => {
           console.log("Data successfully written!");
+          updateTallies();
         }).catch((error) => {
           console.error("Error writing document: ", error);
         });
@@ -169,6 +182,10 @@
         headerRow.appendChild(th);
       });
 
+      const overallTotalTh = document.createElement("th");
+      overallTotalTh.textContent = "Overall Total";
+      headerRow.appendChild(overallTotalTh);
+
       const tbody = table.querySelector("tbody");
       if (!tbody) {
         console.error("Table body not found");
@@ -193,8 +210,28 @@
           row.appendChild(td);
         });
 
+        const playerTotalTd = document.createElement("td");
+        playerTotalTd.id = `${player.idPrefix}-total`;
+        row.appendChild(playerTotalTd);
+
         tbody.appendChild(row);
       });
+
+      const footerRow = table.querySelector("tfoot tr");
+      if (!footerRow) {
+        console.error("Footer row not found");
+        return;
+      }
+
+      dates.forEach((date, index) => {
+        const dailyTotalTd = document.createElement("td");
+        dailyTotalTd.id = `daily-total-${index}`;
+        footerRow.appendChild(dailyTotalTd);
+      });
+
+      const overallTotalTd = document.createElement("td");
+      overallTotalTd.id = `overall-total`;
+      footerRow.appendChild(overallTotalTd);
 
       disableFutureDates();
       loadData();
@@ -263,9 +300,47 @@
           }
         });
         console.log("Data successfully loaded!");
+        updateTallies();
       } catch (error) {
         console.error("Error loading data: ", error);
       }
+    }
+
+    function updateTallies() {
+      const rows = document.querySelectorAll("#pushup-tracker tbody tr");
+      const datesCount = document.querySelectorAll("#pushup-tracker thead th").length - 2; // Exclude Player and Total columns
+      let overallTotal = 0;
+
+      // Update player totals
+      rows.forEach(row => {
+        let playerTotal = 0;
+        for (let i = 1; i <= datesCount; i++) { // Start from 1 to skip the player name
+          const cell = row.cells[i];
+          if (cell && cell.querySelector("span")) {
+            playerTotal++;
+          }
+        }
+        const playerTotalCell = row.cells[datesCount + 1]; // The last cell in the row
+        playerTotalCell.textContent = playerTotal;
+        overallTotal += playerTotal;
+      });
+
+      // Update daily totals
+      for (let i = 0; i < datesCount; i++) {
+        let dailyTotal = 0;
+        rows.forEach(row => {
+          const cell = row.cells[i + 1]; // Start from 1 to skip the player name
+          if (cell && cell.querySelector("span")) {
+            dailyTotal++;
+          }
+        });
+        const dailyTotalCell = document.getElementById(`daily-total-${i}`);
+        dailyTotalCell.textContent = dailyTotal;
+      }
+
+      // Update overall total
+      const overallTotalCell = document.getElementById("overall-total");
+      overallTotalCell.textContent = overallTotal;
     }
 
     // Call generateTable with start and end dates
