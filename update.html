@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Update Push-up Data</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+    }
+    form {
+      margin: 20px 0;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+    }
+    input, button {
+      margin-bottom: 12px;
+      padding: 8px;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h2>Update Push-up Data</h2>
+  <form id="updateForm">
+    <label for="name">Player Name:</label>
+    <input type="text" id="name" name="name" required>
+    <label for="date">Date (MM/DD/YYYY):</label>
+    <input type="text" id="date" name="date" required>
+    <label for="timestamp">Timestamp:</label>
+    <input type="text" id="timestamp" name="timestamp" required>
+    <button type="submit">Update</button>
+  </form>
+
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
+      authDomain: "fivepushups-d5d82.firebaseapp.com",
+      projectId: "fivepushups-d5d82",
+      storageBucket: "fivepushups-d5d82.appspot.com",
+      messagingSenderId: "472818589501",
+      appId: "1:472818589501:web:ef6402c4e19842c0e86f54",
+      measurementId: "G-TJ5VSMC86Y"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    document.getElementById('updateForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const name = e.target.name.value;
+      const date = e.target.date.value;
+      const timestamp = e.target.timestamp.value;
+
+      // Document ID should match the format used in your application
+      const docId = `${name}_${date.replace(/\//g, '-')}`;
+
+      try {
+        await setDoc(doc(db, "pushups", docId), {
+          name: name,
+          date: date,
+          timestamp: timestamp
+        });
+        alert('Data successfully updated!');
+      } catch (error) {
+        console.error("Error updating document: ", error);
+        alert('Failed to update data.');
+      }
+    });
+  </script>
+</body>
+</html>
