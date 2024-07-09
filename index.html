@@ -188,7 +188,7 @@
 
         if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
           const xMark = document.createElement("span");
-          xMark.textContent = "ｘ";
+          xMark.textContent = "❌"; // Corrected X symbol
           xMark.classList.add("not-checked");
           xMark.onclick = () => {
             alert("You can only check off today's date.");
