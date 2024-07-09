@@ -214,5 +214,15 @@
 
     window.toggleCheck = toggleCheck;
   </script>
+
+  <script type="module">
+    import { db, toggleCheck, generateTable, generateDateRange, loadData } from './shared.js';
+
+    // Call generateTable with start and end dates
+    document.addEventListener("DOMContentLoaded", () => {
+      generateTable("2024-07-08", "2024-08-21");
+    });
+  </script>
+  
 </body>
 </html>
