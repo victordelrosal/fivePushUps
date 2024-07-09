@@ -102,6 +102,11 @@
 
     function generateTable(startDate, endDate) {
       const table = document.getElementById("pushup-tracker");
+      if (!table) {
+        console.error("Table element not found");
+        return;
+      }
+
       const players = [
         { name: "Adam", idPrefix: "adam" },
         { name: "Colin", idPrefix: "colin" },
@@ -110,7 +115,12 @@
 
       const dates = generateDateRange(startDate, endDate);
 
-      const headerRow = table.rows[0];
+      const headerRow = table.querySelector("thead tr");
+      if (!headerRow) {
+        console.error("Header row not found");
+        return;
+      }
+
       dates.forEach(date => {
         const parts = date.split("/");
         const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
@@ -118,6 +128,12 @@
         th.textContent = formattedDate;
         headerRow.appendChild(th);
       });
+
+      const tbody = table.querySelector("tbody");
+      if (!tbody) {
+        console.error("Table body not found");
+        return;
+      }
 
       players.forEach(player => {
         const row = document.createElement("tr");
@@ -137,7 +153,7 @@
           row.appendChild(td);
         });
 
-        table.querySelector("tbody").appendChild(row);
+        tbody.appendChild(row);
       });
 
       disableFutureDates();
@@ -226,7 +242,9 @@
     }
 
     // Call generateTable with start and end dates
-    generateTable("2024-07-08", "2024-08-21");
+    document.addEventListener("DOMContentLoaded", () => {
+      generateTable("2024-07-08", "2024-08-21");
+    });
   </script>
 </head>
 <body>
