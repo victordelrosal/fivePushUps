@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Push-up Accountability Tracker</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+    }
+    h2 {
+      color: #1e90ff;
+    }
+    table {
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      border: 2px solid #1e90ff;
+      padding: 10px;
+      text-align: center;
+    }
+    th {
+      background-color: #1e90ff;
+      color: white;
+    }
+    .completed { background-color: #90ee90; }
+    .missed { background-color: #d3d3d3; }
+    .timestamp {
+      font-size: 0.8em;
+      color: #666;
+      margin-top: 5px;
+    }
+    .not-checked {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
+  Extra push-ups don't count towards future days<br>
+  Missed days can't be made up</h2>
+
+  <table id="pushup-tracker">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <!-- Dates dynamically generated -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Player rows dynamically generated -->
+    </tbody>
+  </table>
+
+  <script>
+    function confirmCheck(checkbox, name, dateString) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const checkDate = new Date(dateString);
+
+      // Check if the date is not today's date
+      if (checkDate.toDateString() !== today.toDateString()) {
+        alert("You can only check off today's date.");
+        checkbox.checked = false;
+        return;
+      }
+
+      if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
+        checkbox.disabled = true;
+
+        const checkMark = document.createElement("span");
+        checkMark.textContent = "✅";
+        checkbox.parentElement.replaceChild(checkMark, checkbox);
+        
+        const timestamp = new Date().toLocaleString();
+        const timestampElement = document.createElement("div");
+        timestampElement.classList.add("timestamp");
+        timestampElement.textContent = `Confirmed at: ${timestamp}`;
+        checkMark.parentElement.appendChild(timestampElement);
+
+        console.log(`${name} confirmed 5 push-ups on ${dateString} at ${timestamp}`);
+        checkMark.parentElement.classList.add("completed");
+      } else {
+        checkbox.checked = false;
+      }
+    }
+
+    function generateTable(startDate, endDate) {
+      const table = document.getElementById("pushup-tracker");
+      const players = [
+        { name: "Adam", idPrefix: "adam" },
+        { name: "Colin", idPrefix: "colin" },
+        { name: "Colm", idPrefix: "colm" }
+        // Add more players as needed
+      ];
+
+      const dates = generateDateRange(startDate, endDate);
+
+      // Generate table header
+      const headerRow = table.rows[0];
+      dates.forEach(date => {
+        const parts = date.split("/");
+        const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`; // Remove leading zero
+        const th = document.createElement("th");
+        th.textContent = formattedDate;
+        headerRow.appendChild(th);
+      });
+
+      // Generate player rows
+      players.forEach(player => {
+        const row = document.createElement("tr");
+        const playerName = document.createElement("td");
+        playerName.textContent = player.name;
+        row.appendChild(playerName);
+
+        dates.forEach(date => {
+          const [month, day, year] = date.split("/");
+          const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.id = checkboxId;
+          checkbox.onclick = () => confirmCheck(checkbox, player.name, date);
+          const td = document.createElement("td");
+          td.appendChild(checkbox);
+          row.appendChild(td);
+        });
+
+        table.querySelector("tbody").appendChild(row);
+      });
+
+      disableFutureDates();
+      markMissedDates();
+    }
+
+    function disableFutureDates() {
+      const today = new Date();
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+
+        if (checkDate > today) {
+          checkbox.disabled = true;
+        }
+      });
+    }
+
+    function markMissedDates() {
+      const today = new Date();
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+
+        // Check if the date is yesterday and checkbox is not checked
+        const yesterday = new Date();
+        yesterday.setDate(today.getDate() - 1);
+
+        if (checkDate.toDateString() === yesterday.toDateString() && !checkbox.checked) {
+          const xMark = document.createElement("span");
+          xMark.textContent = "ｘ";
+          xMark.classList.add("not-checked");
+          xMark.onclick = () => {
+            alert("You can only check off today's date.");
+          };
+          checkbox.parentElement.replaceChild(xMark, checkbox);
+        }
+      });
+    }
+
+    function generateDateRange(startDate, endDate) {
+      const dates = [];
+      const currentDate = new Date(startDate);
+      const end = new Date(endDate);
+
+      while (currentDate <= end) {
+        const day = currentDate.getDate();
+        const month = currentDate.getMonth() + 1; // January is 0!
+        const year = currentDate.getFullYear();
+        dates.push(`${month}/${day}/${year}`);
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+
+      return dates;
+    }
+
+    // Call generateTable with start and end dates
+    generateTable("2024-07-08", "2024-08-21");
+  </script>
+</body>
+</html>
