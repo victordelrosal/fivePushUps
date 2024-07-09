@@ -37,6 +37,7 @@
       cursor: pointer;
     }
   </style>
+  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
   <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore-compat.js"></script>
   <script>
@@ -54,8 +55,8 @@
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
+    console.log("Firebase initialized");
 
-    // Save check confirmation to Firestore
     function confirmCheck(checkbox, name, dateString) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
@@ -99,7 +100,6 @@
       }
     }
 
-    // Generate table
     function generateTable(startDate, endDate) {
       const table = document.getElementById("pushup-tracker");
       const players = [
@@ -145,7 +145,6 @@
       loadData();
     }
 
-    // Disable future dates checkboxes
     function disableFutureDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -160,7 +159,6 @@
       });
     }
 
-    // Mark missed dates with "x"
     function markMissedDates() {
       const today = new Date();
       const checkboxes = document.querySelectorAll('input[type="checkbox"]');
@@ -184,7 +182,6 @@
       });
     }
 
-    // Generate date range for table
     function generateDateRange(startDate, endDate) {
       const dates = [];
       const currentDate = new Date(startDate);
@@ -201,7 +198,6 @@
       return dates;
     }
 
-    // Load data from Firestore and mark completed dates
     function loadData() {
       db.collection("pushups").get().then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
@@ -232,5 +228,22 @@
     // Call generateTable with start and end dates
     generateTable("2024-07-08", "2024-08-21");
   </script>
+</head>
+<body>
+  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
+  Extra push-ups don't count towards future days<br>
+  Missed days can't be made up</h2>
+
+  <table id="pushup-tracker">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <!-- Dates dynamically generated -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Player rows dynamically generated -->
+    </tbody>
+  </table>
 </body>
 </html>
