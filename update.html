@@ -55,6 +55,7 @@
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
+    console.log("Firebase initialized");
 
     document.getElementById('updateForm').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -65,6 +66,7 @@
 
       // Document ID should match the format used in your application
       const docId = `${name}_${date.replace(/\//g, '-')}`;
+      console.log(`Updating document with ID: ${docId}`);
 
       try {
         await setDoc(doc(db, "pushups", docId), {
@@ -72,6 +74,7 @@
           date: date,
           timestamp: timestamp
         });
+        console.log('Data successfully written!');
         alert('Data successfully updated!');
       } catch (error) {
         console.error("Error updating document: ", error);
