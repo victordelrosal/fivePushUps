@@ -37,10 +37,29 @@
       cursor: pointer;
     }
   </style>
-  <!-- Firebase App (the core Firebase SDK) is always required and must be listed first -->
-  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.8.0/firebase-firestore-compat.js"></script>
-  <script>
+</head>
+<body>
+  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
+  Extra push-ups don't count towards future days<br>
+  Missed days can't be made up</h2>
+
+  <table id="pushup-tracker">
+    <thead>
+      <tr>
+        <th>Player</th>
+        <!-- Dates dynamically generated -->
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Player rows dynamically generated -->
+    </tbody>
+  </table>
+
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
@@ -53,8 +72,8 @@
     };
 
     // Initialize Firebase
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
     console.log("Firebase initialized");
 
     function confirmCheck(checkbox, name, dateString) {
@@ -86,7 +105,7 @@
         checkMark.parentElement.classList.add("completed");
 
         // Save to Firestore
-        db.collection("pushups").doc(`${name}_${dateString}`).set({
+        setDoc(doc(db, "pushups", `${name}_${dateString}`), {
           name: name,
           date: dateString,
           timestamp: timestamp
@@ -215,7 +234,7 @@
     }
 
     function loadData() {
-      db.collection("pushups").get().then((querySnapshot) => {
+      getDocs(collection(db, "pushups")).then((querySnapshot) => {
         querySnapshot.forEach((doc) => {
           const data = doc.data();
           const name = data.name;
@@ -238,6 +257,8 @@
             checkMark.parentElement.classList.add("completed");
           }
         });
+      }).catch((error) => {
+        console.error("Error loading data: ", error);
       });
     }
 
@@ -246,22 +267,5 @@
       generateTable("2024-07-08", "2024-08-21");
     });
   </script>
-</head>
-<body>
-  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
-  Extra push-ups don't count towards future days<br>
-  Missed days can't be made up</h2>
-
-  <table id="pushup-tracker">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <!-- Dates dynamically generated -->
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Player rows dynamically generated -->
-    </tbody>
-  </table>
 </body>
 </html>
