@@ -205,25 +205,28 @@
       });
     }
 
-  function markMissedDates() {
-    const today = new Date();
-    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
-  
-    checkboxes.forEach(checkbox => {
-      const [_, month, day, year] = checkbox.id.split("-");
-      const checkDate = new Date(`${month}/${day}/${year}`);
-  
-      if (checkDate < today && !checkbox.checked) {
-        const xMark = document.createElement("span");
-        xMark.textContent = "ｘ";
-        xMark.classList.add("not-checked");
-        xMark.onclick = () => {
-          alert("You can only check off today's date.");
-        };
-        checkbox.parentElement.replaceChild(xMark, checkbox);
-      }
-    });
-  }
+    function markMissedDates() {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // Resetting time to start of the day for accurate comparison
+      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    
+      checkboxes.forEach(checkbox => {
+        const [_, month, day, year] = checkbox.id.split("-");
+        const checkDate = new Date(`${month}/${day}/${year}`);
+        checkDate.setHours(0, 0, 0, 0); // Resetting time to start of the day for accurate comparison
+    
+        if (checkDate < today && !checkbox.checked) {
+          const xMark = document.createElement("span");
+          xMark.textContent = "ｘ";
+          xMark.classList.add("not-checked");
+          xMark.onclick = () => {
+            alert("You can only check off today's date.");
+          };
+          checkbox.parentElement.replaceChild(xMark, checkbox);
+        }
+      });
+    }
+
 
     function generateDateRange(startDate, endDate) {
       const dates = [];
