@@ -1,99 +1,188 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Push-up Accountability Tracker</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
-      padding: 20px;
-    }
-    h2 {
-      color: #1e90ff;
-    }
-    table {
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 2px solid #1e90ff;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #1e90ff;
-      color: white;
-    }
-    .completed { background-color: #90ee90; }
-    .timestamp {
-      font-size: 0.8em;
-      color: #666;
-      margin-top: 5px;
-    }
-    .not-checked {
-      cursor: pointer;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Push-up Accountability & 10-Day Streak Checker</title>
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    padding: 20px;
+}
+h2 {
+    color: #1e90ff;
+}
+.table-container {
+    overflow-x: auto; /* Allow horizontal scrolling */
+    -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+    position: relative;
+}
+table {
+    border-collapse: collapse;
+    margin-top: 20px;
+    width: 100%;
+    min-width: 800px; /* Ensures the table is wider than the viewport */
+}
+th, td {
+    border: 2px solid #1e90ff;
+    padding: 10px;
+    text-align: center;
+}
+th {
+    background-color: #1e90ff;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+.completed {
+    background-color: #90ee90;
+}
+.timestamp {
+    font-size: 0.8em;
+    color: #666;
+    margin-top: 5px;
+}
+.not-checked {
+    cursor: pointer;
+}
+th:first-child,
+td:first-child {
+    position: sticky;
+    left: 0;
+    background-color: #f0f8ff;
+    z-index: 2;
+}
+th:first-child {
+    z-index: 3;
+    background-color: #1e90ff; /* Change this to the desired background color */
+    color: white; /* Add this to set the text color to white for better visibility */
+}
+img.streak-img {
+    width: 50px;
+    height: auto;
+    cursor: pointer;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgb(0, 0, 0);
+    background-color: rgba(0, 0, 0, 0.9);
+}
+.modal-content {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+}
+#caption {
+    margin: auto;
+    display: block;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    color: #ccc;
+    padding: 10px 0;
+    height: 150px;
+}
+.modal-content, #caption {
+    animation-name: zoom;
+    animation-duration: 0.6s;
+}
+@keyframes zoom {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+.close {
+    position: absolute;
+    top: 15px;
+    right: 35px;
+    color: #f1f1f1;
+    font-size: 40px;
+    font-weight: bold;
+    transition: 0.3s;
+}
+.close:hover,
+.close:focus {
+    color: #bbb;
+    text-decoration: none;
+    cursor: pointer;
+}
+</style>
 </head>
 <body>
-  <h2>Select ✅ for each day you complete five (5) push-ups<br> 
-  Extra push-ups don't count towards future days<br>
-  Missed days can't be made up</h2>
+<h2>Push-up Accountability Tracker & 10-Day Streak Checker</h2>
 
-  <table id="pushup-tracker">
-    <thead>
-      <tr>
-        <th>Player</th>
-        <!-- Dates dynamically generated -->
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Player rows dynamically generated -->
-    </tbody>
-  </table>
+<div class="table-container">
+    <table id="pushup-tracker">
+        <thead>
+            <tr>
+                <th>Player</th>
+                <th>10-Day Streak</th>
+                <!-- Dates dynamically generated -->
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Player rows dynamically generated -->
+        </tbody>
+    </table>
+</div>
 
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
+<!-- The Modal -->
+<div id="myModal" class="modal">
+    <span class="close">&times;</span>
+    <img class="modal-content" id="img01">
+    <div id="caption"></div>
+</div>
 
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
-      authDomain: "fivepushups-d5d82.firebaseapp.com",
-      projectId: "fivepushups-d5d82",
-      storageBucket: "fivepushups-d5d82.appspot.com",
-      messagingSenderId: "472818589501",
-      appId: "1:472818589501:web:ef6402c4e19842c0e86f54",
-      measurementId: "G-TJ5VSMC86Y"
-    };
+<script type="module">
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
+import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    console.log("Firebase initialized");
+// Your web app's Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
+    authDomain: "fivepushups-d5d82.firebaseapp.com",
+    projectId: "fivepushups-d5d82",
+    storageBucket: "fivepushups-d5d82.appspot.com",
+    messagingSenderId: "472818589501",
+    appId: "1:472818589501:web:ef6402c4e19842c0e86f54",
+    measurementId: "G-TJ5VSMC86Y"
+};
 
-    function confirmCheck(checkbox, name, dateString) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+console.log("Firebase initialized");
 
-      const checkDate = new Date(dateString);
+function confirmCheck(checkbox, name, dateString) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      if (checkDate.toDateString() !== today.toDateString()) {
+    const checkDate = new Date(dateString);
+
+    if (checkDate.toDateString() !== today.toDateString()) {
         alert("You can only check off today's date.");
         checkbox.checked = false;
         return;
-      }
+    }
 
-      if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
+    if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
         checkbox.disabled = true;
 
         const checkMark = document.createElement("span");
         checkMark.textContent = "✅";
         checkbox.parentElement.replaceChild(checkMark, checkbox);
-        
+
         const timestamp = new Date().toLocaleString();
         const timestampElement = document.createElement("div");
         timestampElement.classList.add("timestamp");
@@ -105,162 +194,267 @@
 
         // Save to Firestore
         setDoc(doc(db, "pushups", `${name}_${dateString.replace(/\//g, '-')}`), {
-          name: name,
-          date: dateString,
-          timestamp: timestamp
+            name: name,
+            date: dateString,
+            timestamp: timestamp
         }).then(() => {
-          console.log("Data successfully written!");
+            console.log("Data successfully written!");
         }).catch((error) => {
-          console.error("Error writing document: ", error);
+            console.error("Error writing document: ", error);
         });
-      } else {
+    } else {
         checkbox.checked = false;
-      }
     }
+}
 
-    function generateTable(startDate, endDate) {
-      const table = document.getElementById("pushup-tracker");
-      if (!table) {
+function generateTable(startDate, endDate) {
+    const table = document.getElementById("pushup-tracker");
+    if (!table) {
         console.error("Table element not found");
         return;
-      }
+    }
 
-      const players = [
-        { name: "Adam", idPrefix: "adam" },
-        { name: "Colin", idPrefix: "colin" },
-        { name: "Colm", idPrefix: "colm" },
-        { name: "Jamie", idPrefix: "jamie" },
-        { name: "JP", idPrefix: "jp" },
-        { name: "Leo", idPrefix: "leo" },
-        { name: "Mark", idPrefix: "mark" },
-        { name: "Mervyn", idPrefix: "mervyn" },
-        { name: "Nathan", idPrefix: "nathan" },
-        { name: "Patrick", idPrefix: "patrick" },
-        { name: "Seamus", idPrefix: "seamus" },
-        { name: "SteveH", idPrefix: "steveh" },
-        { name: "SteveJ", idPrefix: "stevej" },
-        { name: "Victor", idPrefix: "victor" }
-      ];
+    const players = [
+        { name: "Adam", idPrefix: "adam", badge: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png" },
+        { name: "Colin", idPrefix: "colin", badge: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png" },
+        { name: "Colm", idPrefix: "colm", badge: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png" },
+        { name: "Jamie", idPrefix: "jamie", badge: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png" },
+        { name: "JP", idPrefix: "jp", badge: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png" },
+        { name: "Leo", idPrefix: "leo", badge: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png" },
+        { name: "Mark", idPrefix: "mark", badge: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png" },
+        { name: "Mervyn", idPrefix: "mervyn", badge: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png" },
+        { name: "Nathan", idPrefix: "nathan", badge: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png" },
+        { name: "Patrick", idPrefix: "patrick", badge: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png" },
+        { name: "Seamus", idPrefix: "seamus", badge: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png" },
+        { name: "SteveH", idPrefix: "steveh", badge: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png" },
+        { name: "SteveJ", idPrefix: "stevej", badge: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png" },
+        { name: "Victor", idPrefix: "victor", badge: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png" }
+    ];
 
-      const dates = generateDateRange(startDate, endDate);
+    const dates = generateDateRange(startDate, endDate);
 
-      const headerRow = table.querySelector("thead tr");
-      if (!headerRow) {
+    const headerRow = table.querySelector("thead tr");
+    if (!headerRow) {
         console.error("Header row not found");
         return;
-      }
+    }
 
-      dates.forEach(date => {
+    // Remove any existing "10-Day Streak" header
+    if (headerRow.children[1] && headerRow.children[1].textContent === "10-Day Streak") {
+        headerRow.removeChild(headerRow.children[1]);
+    }
+
+    // Add streak column header
+    const streakHeader = document.createElement("th");
+    streakHeader.textContent = "10-Day Streak";
+    headerRow.insertBefore(streakHeader, headerRow.children[1]);
+
+    dates.forEach(date => {
         const parts = date.split("/");
         const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
         const th = document.createElement("th");
         th.textContent = formattedDate;
         headerRow.appendChild(th);
-      });
+    });
 
-      const tbody = table.querySelector("tbody");
-      if (!tbody) {
+    const tbody = table.querySelector("tbody");
+    if (!tbody) {
         console.error("Table body not found");
         return;
-      }
+    }
 
-      players.forEach(player => {
+    players.forEach(player => {
         const row = document.createElement("tr");
         const playerName = document.createElement("td");
         playerName.textContent = player.name;
         row.appendChild(playerName);
 
+        const streakCell = document.createElement("td");
+        streakCell.id = `${player.idPrefix}-streak`;
+        row.appendChild(streakCell);
+
         dates.forEach(date => {
-          const [month, day, year] = date.split("/");
-          const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
-          const checkbox = document.createElement("input");
-          checkbox.type = "checkbox";
-          checkbox.id = checkboxId;
-          checkbox.onclick = () => confirmCheck(checkbox, player.name, date);
-          const td = document.createElement("td");
-          td.appendChild(checkbox);
-          row.appendChild(td);
+            const [month, day, year] = date.split("/");
+            const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
+            const checkbox = document.createElement("input");
+            checkbox.type = "checkbox";
+            checkbox.id = checkboxId;
+            checkbox.onclick = () => confirmCheck(checkbox, player.name, date);
+            const td = document.createElement("td");
+            td.appendChild(checkbox);
+            row.appendChild(td);
         });
 
         tbody.appendChild(row);
-      });
+    });
 
-      disableFutureDates();
-      loadData();
-    }
+    disableFutureDates();
+    loadData();
+    checkStreaks();
+}
 
-    function disableFutureDates() {
-      const today = new Date();
-      const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+function disableFutureDates() {
+    const today = new Date();
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
 
-      checkboxes.forEach(checkbox => {
+    checkboxes.forEach(checkbox => {
         const [_, month, day, year] = checkbox.id.split("-");
         const checkDate = new Date(`${month}/${day}/${year}`);
 
         if (checkDate > today) {
-          checkbox.disabled = true;
+            checkbox.disabled = true;
         }
-      });
-    }
+    });
+}
 
-    function generateDateRange(startDate, endDate) {
-      const dates = [];
-      const currentDate = new Date(startDate);
-      const end = new Date(endDate);
+function generateDateRange(startDate, endDate) {
+    const dates = [];
+    const currentDate = new Date(startDate);
+    const end = new Date(endDate);
 
-      while (currentDate <= end) {
+    while (currentDate <= end) {
         const day = currentDate.getDate();
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
         dates.push(`${month}/${day}/${year}`);
         currentDate.setDate(currentDate.getDate() + 1);
-      }
-
-      return dates;
     }
 
-    async function loadData() {
-      try {
+    return dates;
+}
+
+async function loadData() {
+    try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
         querySnapshot.forEach((doc) => {
-          const data = doc.data();
-          const name = data.name;
-          const date = data.date;
-          const timestamp = data.timestamp;
+            const data = doc.data();
+            const name = data.name;
+            const date = data.date;
+            const timestamp = data.timestamp;
 
-          console.log("Loaded data:", data);  // Debugging statement
+            console.log("Loaded data:", data); // Debugging statement
 
-          const formattedDate = date.replace(/\//g, '-');
-          const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
-          console.log("Checkbox ID:", checkboxId);  // Debugging statement
+            const formattedDate = date.replace(/\//g, '-');
+            const checkboxId = `${name.toLowerCase()}-${formattedDate}`;
+            console.log("Checkbox ID:", checkboxId); // Debugging statement
 
-          const checkbox = document.getElementById(checkboxId);
+            const checkbox = document.getElementById(checkboxId);
 
-          if (checkbox) {
-            const checkMark = document.createElement("span");
-            checkMark.textContent = "✅";
-            checkbox.parentElement.replaceChild(checkMark, checkbox);
+            if (checkbox) {
+                const checkMark = document.createElement("span");
+                checkMark.textContent = "✅";
+                checkbox.parentElement.replaceChild(checkMark, checkbox);
 
-            const timestampElement = document.createElement("div");
-            timestampElement.classList.add("timestamp");
-            timestampElement.textContent = `Confirmed at: ${timestamp}`;
-            checkMark.parentElement.appendChild(timestampElement);
+                const timestampElement = document.createElement("div");
+                timestampElement.classList.add("timestamp");
+                timestampElement.textContent = `Confirmed at: ${timestamp}`;
+                checkMark.parentElement.appendChild(timestampElement);
 
-            checkMark.parentElement.classList.add("completed");
-          } else {
-            console.error("Checkbox not found for ID:", checkboxId);  // Debugging statement
-          }
+                checkMark.parentElement.classList.add("completed");
+            } else {
+                console.error("Checkbox not found for ID:", checkboxId); // Debugging statement
+            }
         });
         console.log("Data successfully loaded!");
-      } catch (error) {
+    } catch (error) {
         console.error("Error loading data: ", error);
-      }
+    }
+}
+
+async function checkStreaks() {
+    const players = [
+        { name: "Adam", idPrefix: "adam", badge: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png" },
+        { name: "Colin", idPrefix: "colin", badge: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png" },
+        { name: "Colm", idPrefix: "colm", badge: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png" },
+        { name: "Jamie", idPrefix: "jamie", badge: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png" },
+        { name: "JP", idPrefix: "jp", badge: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png" },
+        { name: "Leo", idPrefix: "leo", badge: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png" },
+        { name: "Mark", idPrefix: "mark", badge: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png" },
+        { name: "Mervyn", idPrefix: "mervyn", badge: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png" },
+        { name: "Nathan", idPrefix: "nathan", badge: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png" },
+        { name: "Patrick", idPrefix: "patrick", badge: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png" },
+        { name: "Seamus", idPrefix: "seamus", badge: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png" },
+        { name: "SteveH", idPrefix: "steveh", badge: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png" },
+        { name: "SteveJ", idPrefix: "stevej", badge: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png" },
+        { name: "Victor", idPrefix: "victor", badge: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png" }
+    ];
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "pushups"));
+        const pushupData = {};
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const name = data.name;
+            const date = data.date;
+
+            if (!pushupData[name]) {
+                pushupData[name] = [];
+            }
+            pushupData[name].push(date);
+        });
+
+        players.forEach(player => {
+            const streakCell = document.getElementById(`${player.idPrefix}-streak`);
+
+            if (check10DayStreak(pushupData[player.name])) {
+                const streakImg = document.createElement("img");
+                streakImg.src = player.badge;
+                streakImg.alt = "10-day streak";
+                streakImg.classList.add("streak-img");
+                streakImg.onclick = function() {
+                    openModal(this);
+                };
+                streakCell.appendChild(streakImg);
+            } else {
+                streakCell.textContent = '';
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading data: ", error);
+    }
+}
+
+function check10DayStreak(dates) {
+    if (!dates || dates.length < 10) return false;
+
+    const sortedDates = dates.map(date => new Date(date)).sort((a, b) => a - b);
+
+    for (let i = 0; i <= sortedDates.length - 10; i++) {
+        let streak = true;
+        for (let j = 0; j < 9; j++) {
+            const dayDifference = (sortedDates[i + j + 1] - sortedDates[i + j]) / (1000 * 60 * 60 * 24);
+            if (dayDifference !== 1) {
+                streak = false;
+                break;
+            }
+        }
+        if (streak) return true;
     }
 
-    // Call generateTable with start and end dates
-    document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2024-07-08", "2024-08-21");
-    });
-  </script>
+    return false;
+}
+
+function openModal(img) {
+    const modal = document.getElementById("myModal");
+    const modalImg = document.getElementById("img01");
+    const captionText = document.getElementById("caption");
+
+    modal.style.display = "block";
+    modalImg.src = img.src;
+    captionText.innerHTML = img.alt;
+
+    const span = document.getElementsByClassName("close")[0];
+    span.onclick = function() {
+        modal.style.display = "none";
+    };
+}
+
+// Call generateTable with start and end dates
+document.addEventListener("DOMContentLoaded", () => {
+    generateTable("2024-07-08", "2024-08-21");
+});
+</script>
 </body>
 </html>
