@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Push-up Accountability & 10-Day Streak Checker</title>
+<title>Push-up Accountability & 10/25-Day Streak Checker</title>
 <style>
 body {
     font-family: Arial, sans-serif;
@@ -119,21 +119,22 @@ img.streak-img {
 </style>
 </head>
 <body>
-<h2>Push-up Accountability Tracker & 10-Day Streak Checker</h2>
+<h2>Push-up Accountability Tracker & 10/25-Day Streak Checker</h2>
 
 <div class="table-container">
-    <table id="pushup-tracker">
-        <thead>
-            <tr>
-                <th>Player</th>
-                <th>10-Day Streak</th>
-                <!-- Dates dynamically generated -->
-            </tr>
-        </thead>
-        <tbody>
-            <!-- Player rows dynamically generated -->
-        </tbody>
-    </table>
+<table id="pushup-tracker">
+    <thead>
+        <tr>
+            <th>Player</th>
+            <th>10-Day Streak</th>
+            <th>25-Day Streak</th>
+            <!-- Dates dynamically generated -->
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Player rows dynamically generated -->
+    </tbody>
+</table>
 </div>
 
 <!-- The Modal -->
@@ -215,20 +216,20 @@ function generateTable(startDate, endDate) {
     }
 
     const players = [
-        { name: "Adam", idPrefix: "adam", badge: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png" },
-        { name: "Colin", idPrefix: "colin", badge: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png" },
-        { name: "Colm", idPrefix: "colm", badge: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png" },
-        { name: "Jamie", idPrefix: "jamie", badge: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png" },
-        { name: "JP", idPrefix: "jp", badge: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png" },
-        { name: "Leo", idPrefix: "leo", badge: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png" },
-        { name: "Mark", idPrefix: "mark", badge: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png" },
-        { name: "Mervyn", idPrefix: "mervyn", badge: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png" },
-        { name: "Nathan", idPrefix: "nathan", badge: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png" },
-        { name: "Patrick", idPrefix: "patrick", badge: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png" },
-        { name: "Seamus", idPrefix: "seamus", badge: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png" },
-        { name: "SteveH", idPrefix: "steveh", badge: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png" },
-        { name: "SteveJ", idPrefix: "stevej", badge: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png" },
-        { name: "Victor", idPrefix: "victor", badge: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png" }
+        { name: "Adam", idPrefix: "adam", badge10: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png", badge25: "https://i.postimg.cc/CxxvwWL2/25day-Streak-Adam.png" },
+        { name: "Colin", idPrefix: "colin", badge10: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png", badge25: "https://i.postimg.cc/Y073ZPsb/25day-Streak-Colin.png" },
+        { name: "Colm", idPrefix: "colm", badge10: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png", badge25: "https://i.postimg.cc/1zLMcXcx/25day-Streak-Colm.png" },
+        { name: "Jamie", idPrefix: "jamie", badge10: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png", badge25: "https://i.postimg.cc/DZPTG6xF/wBt0mLNc/25day-Streak-Jamie.png" },
+        { name: "JP", idPrefix: "jp", badge10: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png", badge25: "https://i.postimg.cc/3Rm1Lhnk/25day-Streak-JP.png" },
+        { name: "Leo", idPrefix: "leo", badge10: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png", badge25: "https://i.postimg.cc/j2hXbXVK/25day-Streak-Leo.png" },
+        { name: "Mark", idPrefix: "mark", badge10: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png", badge25: "https://i.postimg.cc/v87XfQ4j/25day-Streak-Mark.png" },
+        { name: "Mervyn", idPrefix: "mervyn", badge10: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png", badge25: "https://i.postimg.cc/RVMdTjf0/25day-Streak-Mervyn.png" },
+        { name: "Nathan", idPrefix: "nathan", badge10: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png", badge25: "https://i.postimg.cc/SNDr1D7f/25day-Streak-Nathan.png" },
+        { name: "Patrick", idPrefix: "patrick", badge10: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png", badge25: "https://i.postimg.cc/Y2PSH1X9/25day-Streak-Patrick.png" },
+        { name: "Seamus", idPrefix: "seamus", badge10: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png", badge25: "https://i.postimg.cc/hj5KKB1w/25day-Streak-Seamus.png" },
+        { name: "SteveH", idPrefix: "steveh", badge10: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png", badge25: "https://i.postimg.cc/YC0x5YdK/25day-Streak-Steve-H.png" },
+        { name: "SteveJ", idPrefix: "stevej", badge10: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png", badge25: "https://i.postimg.cc/4x01sy0K/25day-Streak-Steve-J.png" },
+        { name: "Victor", idPrefix: "victor", badge10: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png", badge25: "https://i.postimg.cc/KYgDzFX0/25day-Streak-Victor.png" }
     ];
 
     const dates = generateDateRange(startDate, endDate);
@@ -239,15 +240,19 @@ function generateTable(startDate, endDate) {
         return;
     }
 
-    // Remove any existing "10-Day Streak" header
-    if (headerRow.children[1] && headerRow.children[1].textContent === "10-Day Streak") {
+    // Remove any existing "10-Day Streak" and "25-Day Streak" headers
+    while (headerRow.children[1] && (headerRow.children[1].textContent === "10-Day Streak" || headerRow.children[1].textContent === "25-Day Streak")) {
         headerRow.removeChild(headerRow.children[1]);
     }
 
-    // Add streak column header
-    const streakHeader = document.createElement("th");
-    streakHeader.textContent = "10-Day Streak";
-    headerRow.insertBefore(streakHeader, headerRow.children[1]);
+    // Add streak column headers
+    const streakHeader10 = document.createElement("th");
+    streakHeader10.textContent = "10-Day Streak";
+    headerRow.insertBefore(streakHeader10, headerRow.children[1]);
+
+    const streakHeader25 = document.createElement("th");
+    streakHeader25.textContent = "25-Day Streak";
+    headerRow.insertBefore(streakHeader25, headerRow.children[2]);
 
     dates.forEach(date => {
         const parts = date.split("/");
@@ -269,9 +274,13 @@ function generateTable(startDate, endDate) {
         playerName.textContent = player.name;
         row.appendChild(playerName);
 
-        const streakCell = document.createElement("td");
-        streakCell.id = `${player.idPrefix}-streak`;
-        row.appendChild(streakCell);
+        const streakCell10 = document.createElement("td");
+        streakCell10.id = `${player.idPrefix}-streak-10`;
+        row.appendChild(streakCell10);
+
+        const streakCell25 = document.createElement("td");
+        streakCell25.id = `${player.idPrefix}-streak-25`;
+        row.appendChild(streakCell25);
 
         dates.forEach(date => {
             const [month, day, year] = date.split("/");
@@ -363,20 +372,20 @@ async function loadData() {
 
 async function checkStreaks() {
     const players = [
-        { name: "Adam", idPrefix: "adam", badge: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png" },
-        { name: "Colin", idPrefix: "colin", badge: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png" },
-        { name: "Colm", idPrefix: "colm", badge: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png" },
-        { name: "Jamie", idPrefix: "jamie", badge: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png" },
-        { name: "JP", idPrefix: "jp", badge: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png" },
-        { name: "Leo", idPrefix: "leo", badge: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png" },
-        { name: "Mark", idPrefix: "mark", badge: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png" },
-        { name: "Mervyn", idPrefix: "mervyn", badge: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png" },
-        { name: "Nathan", idPrefix: "nathan", badge: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png" },
-        { name: "Patrick", idPrefix: "patrick", badge: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png" },
-        { name: "Seamus", idPrefix: "seamus", badge: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png" },
-        { name: "SteveH", idPrefix: "steveh", badge: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png" },
-        { name: "SteveJ", idPrefix: "stevej", badge: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png" },
-        { name: "Victor", idPrefix: "victor", badge: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png" }
+        { name: "Adam", idPrefix: "adam", badge10: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png", badge25: "https://i.postimg.cc/CxxvwWL2/25day-Streak-Adam.png" },
+        { name: "Colin", idPrefix: "colin", badge10: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png", badge25: "https://i.postimg.cc/Y073ZPsb/25day-Streak-Colin.png" },
+        { name: "Colm", idPrefix: "colm", badge10: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png", badge25: "https://i.postimg.cc/1zLMcXcx/25day-Streak-Colm.png" },
+        { name: "Jamie", idPrefix: "jamie", badge10: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png", badge25: "https://i.postimg.cc/wBt0mLNc/25day-Streak-Jamie.png" },
+        { name: "JP", idPrefix: "jp", badge10: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png", badge25: "https://i.postimg.cc/3Rm1Lhnk/25day-Streak-JP.png" },
+        { name: "Leo", idPrefix: "leo", badge10: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png", badge25: "https://i.postimg.cc/j2hXbXVK/25day-Streak-Leo.png" },
+        { name: "Mark", idPrefix: "mark", badge10: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png", badge25: "https://i.postimg.cc/v87XfQ4j/25day-Streak-Mark.png" },
+        { name: "Mervyn", idPrefix: "mervyn", badge10: "https://i.postimg.cc/cJqy52j0/10day-Streak-Mervyn.png", badge25: "https://i.postimg.cc/RVMdTjf0/25day-Streak-Mervyn.png" },
+        { name: "Nathan", idPrefix: "nathan", badge10: "https://i.postimg.cc/TYw6yrgM/10day-Streak-Nathan.png", badge25: "https://i.postimg.cc/SNDr1D7f/25day-Streak-Nathan.png" },
+        { name: "Patrick", idPrefix: "patrick", badge10: "https://i.postimg.cc/Y2PSH1X9/10day-Streak-Patrick.png", badge25: "https://i.postimg.cc/Y2PSH1X9/25day-Streak-Patrick.png" },
+        { name: "Seamus", idPrefix: "seamus", badge10: "https://i.postimg.cc/hj5KKB1w/10day-Streak-Seamus.png", badge25: "https://i.postimg.cc/hj5KKB1w/25day-Streak-Seamus.png" },
+        { name: "SteveH", idPrefix: "steveh", badge10: "https://i.postimg.cc/hvCRyjF5/10day-Streak-Steve-H.png", badge25: "https://i.postimg.cc/YC0x5YdK/25day-Streak-Steve-H.png" },
+        { name: "SteveJ", idPrefix: "stevej", badge10: "https://i.postimg.cc/Vs4wL7SW/10day-Streak-Steve-J.png", badge25: "https://i.postimg.cc/4x01sy0K/25day-Streak-Steve-J.png" },
+        { name: "Victor", idPrefix: "victor", badge10: "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png", badge25: "https://i.postimg.cc/KYgDzFX0/25day-Streak-Victor.png" }
     ];
 
     try {
@@ -395,19 +404,33 @@ async function checkStreaks() {
         });
 
         players.forEach(player => {
-            const streakCell = document.getElementById(`${player.idPrefix}-streak`);
+            const streakCell10 = document.getElementById(`${player.idPrefix}-streak-10`);
+            const streakCell25 = document.getElementById(`${player.idPrefix}-streak-25`);
 
-            if (check10DayStreak(pushupData[player.name])) {
-                const streakImg = document.createElement("img");
-                streakImg.src = player.badge;
-                streakImg.alt = "10-day streak";
-                streakImg.classList.add("streak-img");
-                streakImg.onclick = function() {
+            if (checkStreak(pushupData[player.name], 10)) {
+                const streakImg10 = document.createElement("img");
+                streakImg10.src = player.badge10;
+                streakImg10.alt = "10-day streak";
+                streakImg10.classList.add("streak-img");
+                streakImg10.onclick = function() {
                     openModal(this);
                 };
-                streakCell.appendChild(streakImg);
+                streakCell10.appendChild(streakImg10);
             } else {
-                streakCell.textContent = '';
+                streakCell10.textContent = '';
+            }
+
+            if (checkStreak(pushupData[player.name], 25)) {
+                const streakImg25 = document.createElement("img");
+                streakImg25.src = player.badge25;
+                streakImg25.alt = "25-day streak";
+                streakImg25.classList.add("streak-img");
+                streakImg25.onclick = function() {
+                    openModal(this);
+                };
+                streakCell25.appendChild(streakImg25);
+            } else {
+                streakCell25.textContent = '';
             }
         });
 
@@ -416,14 +439,14 @@ async function checkStreaks() {
     }
 }
 
-function check10DayStreak(dates) {
-    if (!dates || dates.length < 10) return false;
+function checkStreak(dates, streakLength) {
+    if (!dates || dates.length < streakLength) return false;
 
     const sortedDates = dates.map(date => new Date(date)).sort((a, b) => a - b);
 
-    for (let i = 0; i <= sortedDates.length - 10; i++) {
+    for (let i = 0; i <= sortedDates.length - streakLength; i++) {
         let streak = true;
-        for (let j = 0; j < 9; j++) {
+        for (let j = 0; j < streakLength - 1; j++) {
             const dayDifference = (sortedDates[i + j + 1] - sortedDates[i + j]) / (1000 * 60 * 60 * 24);
             if (dayDifference !== 1) {
                 streak = false;
