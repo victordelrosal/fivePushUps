@@ -116,6 +116,46 @@ img.streak-img {
     text-decoration: none;
     cursor: pointer;
 }
+/* Custom modal for confirmation */
+.confirm-modal {
+    display: none;
+    position: fixed;
+    z-index: 2;
+    padding-top: 100px;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+.confirm-modal-content {
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 500px;
+    text-align: center;
+}
+.confirm-modal-buttons {
+    margin-top: 20px;
+    text-align: center;
+}
+.confirm-modal-buttons button {
+    padding: 10px 20px;
+    margin: 0 10px;
+    border: none;
+    cursor: pointer;
+    font-size: 1em;
+}
+.confirm-modal-buttons button.confirm {
+    background-color: #1e90ff;
+    color: white;
+}
+.confirm-modal-buttons button.cancel {
+    background-color: #ccc;
+}
 </style>
 </head>
 <body>
@@ -142,6 +182,17 @@ img.streak-img {
     <span class="close">&times;</span>
     <img class="modal-content" id="img01">
     <div id="caption"></div>
+</div>
+
+<!-- Custom Confirm Modal -->
+<div id="confirmModal" class="confirm-modal">
+    <div class="confirm-modal-content">
+        <p id="confirmMessage"></p>
+        <div class="confirm-modal-buttons">
+            <button class="confirm" id="confirmYes">Yes</button>
+            <button class="cancel" id="confirmNo">No</button>
+        </div>
+    </div>
 </div>
 
 <script type="module">
@@ -177,7 +228,7 @@ function confirmCheck(checkbox, name, dateString) {
         return;
     }
 
-    if (confirm(`I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`)) {
+    showConfirmModal(name, dateString, () => {
         checkbox.disabled = true;
 
         const checkMark = document.createElement("span");
@@ -203,9 +254,30 @@ function confirmCheck(checkbox, name, dateString) {
         }).catch((error) => {
             console.error("Error writing document: ", error);
         });
-    } else {
+    }, () => {
         checkbox.checked = false;
-    }
+    });
+}
+
+function showConfirmModal(name, dateString, onConfirm, onCancel) {
+    const confirmModal = document.getElementById("confirmModal");
+    const confirmMessage = document.getElementById("confirmMessage");
+    const confirmYes = document.getElementById("confirmYes");
+    const confirmNo = document.getElementById("confirmNo");
+
+    confirmMessage.textContent = `I, ${name}, confirm that I have completed five or more push-ups today, ${dateString}.`;
+
+    confirmModal.style.display = "block";
+
+    confirmYes.onclick = () => {
+        onConfirm();
+        confirmModal.style.display = "none";
+    };
+
+    confirmNo.onclick = () => {
+        onCancel();
+        confirmModal.style.display = "none";
+    };
 }
 
 function generateTable(startDate, endDate) {
@@ -219,7 +291,7 @@ function generateTable(startDate, endDate) {
         { name: "Adam", idPrefix: "adam", badge10: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png", badge25: "https://i.postimg.cc/CxxvwWL2/25day-Streak-Adam.png" },
         { name: "Colin", idPrefix: "colin", badge10: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png", badge25: "https://i.postimg.cc/Y073ZPsb/25day-Streak-Colin.png" },
         { name: "Colm", idPrefix: "colm", badge10: "https://i.postimg.cc/76VFh6LZ/10day-Streak-Colm.png", badge25: "https://i.postimg.cc/1zLMcXcx/25day-Streak-Colm.png" },
-        { name: "Jamie", idPrefix: "jamie", badge10: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png", badge25: "https://i.postimg.cc/DZPTG6xF/wBt0mLNc/25day-Streak-Jamie.png" },
+        { name: "Jamie", idPrefix: "jamie", badge10: "https://i.postimg.cc/DZPTG6xF/10day-Streak-Jamie.png", badge25: "https://i.postimg.cc/wBt0mLNc/25day-Streak-Jamie.png" },
         { name: "JP", idPrefix: "jp", badge10: "https://i.postimg.cc/023Lbh9D/10day-Streak-JP.png", badge25: "https://i.postimg.cc/3Rm1Lhnk/25day-Streak-JP.png" },
         { name: "Leo", idPrefix: "leo", badge10: "https://i.postimg.cc/prVtJjSj/10day-Streak-Leo.png", badge25: "https://i.postimg.cc/j2hXbXVK/25day-Streak-Leo.png" },
         { name: "Mark", idPrefix: "mark", badge10: "https://i.postimg.cc/76wvq7wR/10day-Streak-Mark.png", badge25: "https://i.postimg.cc/v87XfQ4j/25day-Streak-Mark.png" },
