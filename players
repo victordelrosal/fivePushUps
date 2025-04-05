@@ -1,0 +1,21 @@
+const players = [
+    { name: "Aidan", idPrefix: "aidan" },
+    { name: "Aileen", idPrefix: "aileen" },
+    { name: "Aisling", idPrefix: "aisling" },
+    { name: "Claire", idPrefix: "claire" },
+    { name: "Colm", idPrefix: "colm" },
+    { name: "Colin", idPrefix: "colin" },
+    { name: "Gráinne", idPrefix: "grainne" },
+    { name: "Helen", idPrefix: "helen" },
+    { name: "Jamie", idPrefix: "jamie" },
+    { name: "KatieG", idPrefix: "katieg" },
+    { name: "KatieK", idPrefix: "katiek" },
+    { name: "Leo", idPrefix: "leo" },
+    { name: "Mark", idPrefix: "mark" },
+    { name: "Michelle", idPrefix: "michelle" },
+    { name: "PaulaD", idPrefix: "paulad" },
+    { name: "Roisin", idPrefix: "roisin" },
+    { name: "Tracey", idPrefix: "tracey" },
+    { name: "Victor", idPrefix: "victor" },
+    { name: "Wayne", idPrefix: "wayne" }
+];

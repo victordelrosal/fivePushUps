@@ -202,7 +202,7 @@ import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gsta
 
 // Define start and end dates as constants
 const START_DATE = "2025-04-07";
-const END_DATE = "2025-05-07";
+const END_DATE = "2025-05-06";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -219,6 +219,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 console.log("Firebase initialized");
+
+// Define a single, global players list
+const players = [
+    { name: "Aidan", idPrefix: "aidan" },
+    { name: "Aileen", idPrefix: "aileen" },
+    { name: "Aisling", idPrefix: "aisling" },
+    { name: "Claire", idPrefix: "claire" },
+    { name: "Colm", idPrefix: "colm" },
+    { name: "Colin", idPrefix: "colin" },
+    { name: "Gráinne", idPrefix: "grainne" },
+    { name: "Helen", idPrefix: "helen" },
+    { name: "Jamie", idPrefix: "jamie" },
+    { name: "KatieG", idPrefix: "katieg" },
+    { name: "KatieK", idPrefix: "katiek" },
+    { name: "Leo", idPrefix: "leo" },
+    { name: "Mark", idPrefix: "mark" },
+    { name: "Michelle", idPrefix: "michelle" },
+    { name: "PaulaD", idPrefix: "paulad" },
+    { name: "Roisin", idPrefix: "roisin" },
+    { name: "Tracey", idPrefix: "tracey" },
+    { name: "Victor", idPrefix: "victor" },
+    { name: "Wayne", idPrefix: "wayne" }
+];
 
 // Add a helper function for consistent date parsing
 function parseDate(dateStr) {
@@ -321,23 +344,6 @@ function generateTable(startDate, endDate) {
     const badge10DayURL = "https://i.postimg.cc/vHDJ8GwG/10day-Streak-Victor.png";
     const badge30DayURL = "https://i.postimg.cc/KYgDzFX0/25day-Streak-Victor.png";
     
-    const players = [
-        { name: "Adam", idPrefix: "adam" },
-        { name: "Colin", idPrefix: "colin" },
-        { name: "Colm", idPrefix: "colm" },
-        { name: "Jamie", idPrefix: "jamie" },
-        { name: "JP", idPrefix: "jp" },
-        { name: "Leo", idPrefix: "leo" },
-        { name: "Mark", idPrefix: "mark" },
-        { name: "Mervyn", idPrefix: "mervyn" },
-        { name: "Nathan", idPrefix: "nathan" },
-        { name: "Patrick", idPrefix: "patrick" },
-        { name: "Seamus", idPrefix: "seamus" },
-        { name: "SteveH", idPrefix: "steveh" },
-        { name: "SteveJ", idPrefix: "stevej" },
-        { name: "Victor", idPrefix: "victor" }
-    ];
-
     const dates = generateDateRange(startDate, endDate);
 
     const headerRow = table.querySelector("thead tr");
@@ -465,23 +471,6 @@ async function loadData() {
 }
 
 async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
-    const players = [
-        { name: "Adam", idPrefix: "adam" },
-        { name: "Colin", idPrefix: "colin" },
-        { name: "Colm", idPrefix: "colm" },
-        { name: "Jamie", idPrefix: "jamie" },
-        { name: "JP", idPrefix: "jp" },
-        { name: "Leo", idPrefix: "leo" },
-        { name: "Mark", idPrefix: "mark" },
-        { name: "Mervyn", idPrefix: "mervyn" },
-        { name: "Nathan", idPrefix: "nathan" },
-        { name: "Patrick", idPrefix: "patrick" },
-        { name: "Seamus", idPrefix: "seamus" },
-        { name: "SteveH", idPrefix: "steveh" },
-        { name: "SteveJ", idPrefix: "stevej" },
-        { name: "Victor", idPrefix: "victor" }
-    ];
-
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
         const pushupData = {};
