@@ -307,46 +307,24 @@ td:first-child:hover {
     overflow: hidden;
 }
 
-.confetti {
-    position: absolute;
-    width: 10px;
-    height: 15px;
-    background-color: transparent;
-    top: -100px;
-    will-change: transform, opacity;
+/* Clapping hands animation styles */
+.clapping-animation {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 100px;
+    z-index: 10000;
+    opacity: 0;
+    pointer-events: none;
 }
 
-.confetti-piece {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-size: contain;
-    border-radius: 2px;
-    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
-}
-
-@keyframes confettiFall {
-    0% {
-        opacity: 0;
-        transform: translateY(-100px);
-    }
-    10% {
-        opacity: 1;
-    }
-    100% {
-        opacity: 0;
-        transform: translateY(calc(100vh + 100px));
-    }
-}
-
-@keyframes confettiSway {
-    0% { transform: translateX(0); }
-    25% { transform: translateX(25px); }
-    50% { transform: translateX(-25px); }
-    75% { transform: translateX(15px); }
-    100% { transform: translateX(0); }
+@keyframes clappingAnimation {
+    0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+    25% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    75% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
 }
 </style>
 </head>
@@ -389,6 +367,9 @@ td:first-child:hover {
 
 <!-- Confetti Container -->
 <div id="confetti-container" class="confetti-container"></div>
+
+<!-- Clapping Hands Animation -->
+<div id="clapping-animation" class="clapping-animation">👏👏👏</div>
 
 <script type="module">
 // Import the functions you need from the SDKs you need
@@ -496,6 +477,9 @@ function confirmCheck(checkbox, name, dateString) {
         }).catch((error) => {
             console.error("Error writing document: ", error);
         });
+
+        // Trigger clapping hands animation
+        triggerClappingAnimation();
     }, () => {
         checkbox.checked = false;
     });
@@ -564,6 +548,16 @@ function createConfetti() {
             }
         }, fallDuration * 1000);
     }
+}
+
+function triggerClappingAnimation() {
+    const clappingAnimation = document.getElementById("clapping-animation");
+    clappingAnimation.style.animation = "clappingAnimation 2s ease-in-out";
+    clappingAnimation.style.opacity = "1";
+
+    setTimeout(() => {
+        clappingAnimation.style.opacity = "0";
+    }, 2000);
 }
 
 function showConfirmModal(name, dateString, onConfirm, onCancel) {
