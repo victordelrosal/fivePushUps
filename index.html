@@ -294,6 +294,61 @@ td:first-child:hover {
         padding: 25px;
     }
 }
+
+/* Confetti animation styles */
+.confetti-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.confetti {
+    position: absolute;
+    width: 10px;
+    height: 15px;
+    background-color: transparent;
+    top: -100px;
+    opacity: 0;
+    will-change: transform, opacity;
+}
+
+.confetti-piece {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 2px;
+    filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+@keyframes confettiFall {
+    0% {
+        opacity: 0;
+        transform: translateY(-100px) rotate(0deg) scale(0.7);
+    }
+    10% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(calc(100vh + 100px)) rotate(360deg) scale(1);
+    }
+}
+
+@keyframes confettiSway {
+    0% { transform: translateX(0); }
+    25% { transform: translateX(25px); }
+    50% { transform: translateX(-25px); }
+    75% { transform: translateX(15px); }
+    100% { transform: translateX(0); }
+}
 </style>
 </head>
 <body>
@@ -333,13 +388,16 @@ td:first-child:hover {
     </div>
 </div>
 
+<!-- Confetti Container -->
+<div id="confetti-container" class="confetti-container"></div>
+
 <script type="module">
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
 import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
 // Define start and end dates as constants
-const START_DATE = "2025-04-07";
+const START_DATE = "2025-04-05";
 const END_DATE = "2025-05-06";
 
 // Your web app's Firebase configuration
@@ -429,6 +487,9 @@ function confirmCheck(checkbox, name, dateString) {
         console.log(`${name} confirmed 5 push-ups on ${dateString} at ${timestamp}`);
         checkMark.parentElement.classList.add("completed");
 
+        // Launch confetti celebration
+        createConfetti();
+
         // Save to Firestore
         setDoc(doc(db, "pushups", `${name}_${dateString.replace(/\//g, '-')}`), {
             name: name,
@@ -442,6 +503,75 @@ function confirmCheck(checkbox, name, dateString) {
     }, () => {
         checkbox.checked = false;
     });
+}
+
+// Confetti animation function
+function createConfetti() {
+    const confettiContainer = document.getElementById('confetti-container');
+    confettiContainer.innerHTML = ''; // Clear any existing confetti
+    
+    const confettiColors = [
+        '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+        '#ff8000', '#8000ff', '#0080ff', '#ff0080', '#80ff00', '#00ff80'
+    ];
+    
+    const confettiShapes = [
+        // Generate SVG paths for realistic confetti shapes
+        `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path d="M15 2L28 13L26 28L4 28L2 13L15 2Z" fill="COLOR"></path></svg>`,
+        `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><circle cx="15" cy="15" r="13" fill="COLOR"/></svg>`,
+        `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><rect x="5" y="5" width="20" height="20" rx="3" fill="COLOR"/></svg>`,
+        `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path d="M15 2L20 10L30 12L22 20L24 30L15 25L6 30L8 20L0 12L10 10L15 2Z" fill="COLOR"/></svg>`,
+        `<svg viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg"><path d="M3,15 L15,3 L27,15 L15,27 Z" fill="COLOR"/></svg>`
+    ];
+    
+    // Create 150 confetti pieces
+    const confettiCount = 150;
+    
+    for (let i = 0; i < confettiCount; i++) {
+        // Create confetti element
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        
+        // Set random position
+        const posX = Math.random() * 100;
+        confetti.style.left = `${posX}%`;
+        
+        // Set random speed for falling (3-8 seconds)
+        const fallDuration = 3 + Math.random() * 5;
+        
+        // Set random color and shape
+        const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
+        const shape = confettiShapes[Math.floor(Math.random() * confettiShapes.length)];
+        const svgData = shape.replace('COLOR', color);
+        const svgBase64 = btoa(svgData);
+        
+        // Create and style the confetti piece
+        const confettiPiece = document.createElement('div');
+        confettiPiece.className = 'confetti-piece';
+        confettiPiece.style.backgroundImage = `url(data:image/svg+xml;base64,${svgBase64})`;
+        confettiPiece.style.transform = `rotate(${Math.random() * 360}deg)`;
+        
+        // Add to DOM
+        confetti.appendChild(confettiPiece);
+        confettiContainer.appendChild(confetti);
+        
+        // Apply animation
+        confetti.style.animation = `
+            confettiFall ${fallDuration}s cubic-bezier(0.25, 1, 0.5, 1) forwards,
+            confettiSway ${3 + Math.random() * 2}s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate
+        `;
+        
+        // Vary the size
+        const scale = 0.5 + Math.random() * 1.5;
+        confetti.style.transform = `scale(${scale})`;
+        
+        // Remove after animation completes
+        setTimeout(() => {
+            if (confetti.parentNode === confettiContainer) {
+                confettiContainer.removeChild(confetti);
+            }
+        }, fallDuration * 1000);
+    }
 }
 
 function showConfirmModal(name, dateString, onConfirm, onCancel) {
