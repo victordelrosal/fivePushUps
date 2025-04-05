@@ -201,8 +201,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/fireba
 import { getFirestore, doc, setDoc, getDocs, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
 // Define start and end dates as constants
-const START_DATE = "2025-04-01";
-const END_DATE = "2025-05-01";
+const START_DATE = "2025-04-07";
+const END_DATE = "2025-05-07";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -219,6 +219,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 console.log("Firebase initialized");
+
+// Add a helper function for consistent date parsing
+function parseDate(dateStr) {
+    if (dateStr.includes('-')) { // e.g. "2025-04-07"
+        const [year, month, day] = dateStr.split('-').map(Number);
+        return new Date(year, month - 1, day);
+    } else if (dateStr.includes('/')) { // e.g. "4/7/2025"
+        const [month, day, year] = dateStr.split('/').map(Number);
+        return new Date(year, month - 1, day);
+    }
+    return new Date(dateStr);
+}
 
 function confirmCheck(checkbox, name, dateString) {
     const today = new Date();
@@ -282,6 +294,20 @@ function showConfirmModal(name, dateString, onConfirm, onCancel) {
         onCancel();
         confirmModal.style.display = "none";
     };
+}
+
+function generateDateRange(startDate, endDate) {
+    const dates = [];
+    const currentDate = parseDate(startDate);
+    const end = parseDate(endDate);
+    while (currentDate <= end) {
+        const day = currentDate.getDate();
+        const month = currentDate.getMonth() + 1;
+        const year = currentDate.getFullYear();
+        dates.push(`${month}/${day}/${year}`);
+        currentDate.setDate(currentDate.getDate() + 1);
+    }
+    return dates;
 }
 
 function generateTable(startDate, endDate) {
@@ -380,9 +406,9 @@ function generateTable(startDate, endDate) {
     disableFutureDates();
     loadData();
     
-    // Pass start and end date objects to checkStreaks
-    const startDateObj = new Date(startDate);
-    const endDateObj = new Date(endDate);
+    // Pass start and end date objects to checkStreaks normally using parseDate
+    const startDateObj = parseDate(startDate);
+    const endDateObj = parseDate(endDate);
     checkStreaks(startDateObj, endDateObj, badge10DayURL, badge30DayURL);
 }
 
@@ -398,22 +424,6 @@ function disableFutureDates() {
             checkbox.disabled = true;
         }
     });
-}
-
-function generateDateRange(startDate, endDate) {
-    const dates = [];
-    const currentDate = new Date(startDate);
-    const end = new Date(endDate);
-
-    while (currentDate <= end) {
-        const day = currentDate.getDate();
-        const month = currentDate.getMonth() + 1;
-        const year = currentDate.getFullYear();
-        dates.push(`${month}/${day}/${year}`);
-        currentDate.setDate(currentDate.getDate() + 1);
-    }
-
-    return dates;
 }
 
 async function loadData() {
@@ -498,7 +508,10 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
                     const [month, day, year] = dateStr.split('/').map(Number);
                     return new Date(year, month - 1, day);
                 })
-                .filter(date => date >= startDate && date <= endDate)
+                .filter(date => {
+                    // Add both start and end date constraints
+                    return date >= startDate && date <= endDate;
+                })
                 .sort((a, b) => a - b);
 
             // Check streaks with filtered dates
@@ -533,15 +546,39 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
 function checkStreak(dates, streakLength) {
     if (dates.length < streakLength) return false;
     
-    for (let i = 0; i <= dates.length - streakLength; i++) {
-        const sequence = dates.slice(i, i + streakLength);
-        const isConsecutive = sequence.every((date, index) => 
-            index === 0 || 
-            (date - sequence[index-1])/(1000*60*60*24) === 1
-        );
-        if (isConsecutive) return true;
+    // Remove duplicate dates that might be in the array
+    const uniqueDates = [];
+    const dateMap = new Map();
+    
+    dates.forEach(date => {
+        const dateString = date.toISOString().split('T')[0];
+        if (!dateMap.has(dateString)) {
+            dateMap.set(dateString, true);
+            uniqueDates.push(date);
+        }
+    });
+    
+    // Sort dates to ensure they are in chronological order
+    uniqueDates.sort((a, b) => a - b);
+    
+    let currentStreak = 1;
+    let maxStreak = 1;
+    
+    for (let i = 1; i < uniqueDates.length; i++) {
+        const dayDiff = (uniqueDates[i] - uniqueDates[i-1]) / (1000 * 60 * 60 * 24);
+        
+        if (dayDiff === 1) {
+            // Consecutive day found
+            currentStreak++;
+            maxStreak = Math.max(maxStreak, currentStreak);
+        } else if (dayDiff > 1) {
+            // Streak broken
+            currentStreak = 1;
+        }
+        // If dayDiff is 0 (same day), we already handled it with uniqueDates
     }
-    return false;
+    
+    return maxStreak >= streakLength;
 }
 
 function openModal(img) {
