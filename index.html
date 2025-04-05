@@ -541,7 +541,7 @@ function createConfetti() {
         const svgData = shape.replace('COLOR', color);
         const svgBase64 = btoa(svgData);
         
-        // Create and style the confetti piece
+        // Create and style the confetti piece - applying both rotation and scale here
         const confettiPiece = document.createElement('div');
         confettiPiece.className = 'confetti-piece';
         confettiPiece.style.backgroundImage = `url(data:image/svg+xml;base64,${svgBase64})`;
@@ -551,7 +551,7 @@ function createConfetti() {
         confetti.appendChild(confettiPiece);
         confettiContainer.appendChild(confetti);
         
-        // Apply animation
+        // Apply animation to the outer confetti element without any transform
         confetti.style.animation = `
             confettiFall ${fallDuration}s cubic-bezier(0.25, 1, 0.5, 1) forwards,
             confettiSway ${3 + Math.random() * 2}s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite alternate
