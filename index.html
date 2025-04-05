@@ -371,7 +371,11 @@ function generateTable(startDate, endDate) {
 
     disableFutureDates();
     loadData();
-    checkStreaks();
+    
+    // Pass start and end date objects to checkStreaks
+    const startDateObj = new Date(startDate);
+    const endDateObj = new Date(endDate);
+    checkStreaks(startDateObj, endDateObj);
 }
 
 function disableFutureDates() {
@@ -442,7 +446,7 @@ async function loadData() {
     }
 }
 
-async function checkStreaks() {
+async function checkStreaks(startDate, endDate) {
     const players = [
         { name: "Adam", idPrefix: "adam", badge10: "https://i.postimg.cc/j23B6FPV/10day-Streak-Adam.png", badge25: "https://i.postimg.cc/CxxvwWL2/25day-Streak-Adam.png" },
         { name: "Colin", idPrefix: "colin", badge10: "https://i.postimg.cc/TPrM8QMm/10day-Streak-Colin.png", badge25: "https://i.postimg.cc/Y073ZPsb/25day-Streak-Colin.png" },
@@ -464,22 +468,33 @@ async function checkStreaks() {
         const querySnapshot = await getDocs(collection(db, "pushups"));
         const pushupData = {};
 
+        // Process Firestore data
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const name = data.name;
-            const date = data.date;
-
-            if (!pushupData[name]) {
-                pushupData[name] = [];
-            }
-            pushupData[name].push(date);
+            if (!pushupData[data.name]) pushupData[data.name] = [];
+            pushupData[data.name].push(data.date);
         });
 
         players.forEach(player => {
             const streakCell10 = document.getElementById(`${player.idPrefix}-streak-10`);
             const streakCell25 = document.getElementById(`${player.idPrefix}-streak-25`);
+            
+            // Clear previous badges
+            streakCell10.innerHTML = '';
+            streakCell25.innerHTML = '';
 
-            if (checkStreak(pushupData[player.name], 10)) {
+            // Process and filter dates
+            const playerDates = pushupData[player.name] || [];
+            const filteredDates = playerDates
+                .map(dateStr => {
+                    const [month, day, year] = dateStr.split('/').map(Number);
+                    return new Date(year, month - 1, day);
+                })
+                .filter(date => date >= startDate && date <= endDate)
+                .sort((a, b) => a - b);
+
+            // Check streaks with filtered dates
+            if (checkStreak(filteredDates, 10)) {
                 const streakImg10 = document.createElement("img");
                 streakImg10.src = player.badge10;
                 streakImg10.alt = "10-day streak";
@@ -488,11 +503,9 @@ async function checkStreaks() {
                     openModal(this);
                 };
                 streakCell10.appendChild(streakImg10);
-            } else {
-                streakCell10.textContent = '';
             }
 
-            if (checkStreak(pushupData[player.name], 25)) {
+            if (checkStreak(filteredDates, 25)) {
                 const streakImg25 = document.createElement("img");
                 streakImg25.src = player.badge25;
                 streakImg25.alt = "25-day streak";
@@ -501,8 +514,6 @@ async function checkStreaks() {
                     openModal(this);
                 };
                 streakCell25.appendChild(streakImg25);
-            } else {
-                streakCell25.textContent = '';
             }
         });
 
@@ -512,22 +523,16 @@ async function checkStreaks() {
 }
 
 function checkStreak(dates, streakLength) {
-    if (!dates || dates.length < streakLength) return false;
-
-    const sortedDates = dates.map(date => new Date(date)).sort((a, b) => a - b);
-
-    for (let i = 0; i <= sortedDates.length - streakLength; i++) {
-        let streak = true;
-        for (let j = 0; j < streakLength - 1; j++) {
-            const dayDifference = (sortedDates[i + j + 1] - sortedDates[i + j]) / (1000 * 60 * 60 * 24);
-            if (dayDifference !== 1) {
-                streak = false;
-                break;
-            }
-        }
-        if (streak) return true;
+    if (dates.length < streakLength) return false;
+    
+    for (let i = 0; i <= dates.length - streakLength; i++) {
+        const sequence = dates.slice(i, i + streakLength);
+        const isConsecutive = sequence.every((date, index) => 
+            index === 0 || 
+            (date - sequence[index-1])/(1000*60*60*24) === 1
+        );
+        if (isConsecutive) return true;
     }
-
     return false;
 }
 
@@ -548,7 +553,7 @@ function openModal(img) {
 
 // Call generateTable with start and end dates
 document.addEventListener("DOMContentLoaded", () => {
-    generateTable("2024-07-08", "2024-08-21");
+    generateTable("2025-04-01", "2025-04-12");
 });
 </script>
 </body>
