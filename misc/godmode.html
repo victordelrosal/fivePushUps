@@ -63,6 +63,10 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-app.js";
     import { getFirestore, doc, setDoc, getDocs, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.3/firebase-firestore.js";
 
+    // Define start and end dates as constants
+    const START_DATE = "2025-04-01";
+    const END_DATE = "2025-04-12";
+
     // Your web app's Firebase configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAtg-_5eLD-Prs74zTnCj4HjQQfnssdfP8",
@@ -263,16 +267,20 @@
 
     // Call generateTable with start and end dates
     document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2025-04-01", "2025-04-12");
+      generateTable(START_DATE, END_DATE);
     });
   </script>
   
   <script type="module">
     import { db, toggleCheck, generateTable, generateDateRange, loadData } from './shared.js';
 
+    // Define start and end dates as constants
+    const START_DATE = "2025-04-01";
+    const END_DATE = "2025-04-12";
+
     // Call generateTable with start and end dates
     document.addEventListener("DOMContentLoaded", () => {
-      generateTable("2025-04-01", "2025-04-12");
+      generateTable(START_DATE, END_DATE);
     });
   </script>
   
