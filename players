@@ -3,12 +3,14 @@ const players = [
     { name: "Aileen", idPrefix: "aileen" },
     { name: "Aisling", idPrefix: "aisling" },
     { name: "Claire", idPrefix: "claire" },
-    { name: "Colm", idPrefix: "colm" },
+    { name: "Clodagh", idPrefix: "clodagh" },
     { name: "Colin", idPrefix: "colin" },
+    { name: "Colm", idPrefix: "colm" },
     { name: "Gráinne", idPrefix: "grainne" },
     { name: "Helen", idPrefix: "helen" },
     { name: "Jamie", idPrefix: "jamie" },
     { name: "Joanne", idPrefix: "joanne" },
+    { name: "John", idPrefix: "john" },
     { name: "KatieG", idPrefix: "katieg" },
     { name: "KatieK", idPrefix: "katiek" },
     { name: "KellyR", idPrefix: "kellyr" },
@@ -20,11 +22,10 @@ const players = [
     { name: "Nathan", idPrefix: "nathan" },
     { name: "PaulaD", idPrefix: "paulad" },
     { name: "Roisin", idPrefix: "roisin" },
-    { name: "RV", idPrefix: "rv" },
+    { name: "Richie", idPrefix: "richie" },
+    { name: "Seamus", idPrefix: "seamus" },
     { name: "SteveJ", idPrefix: "stevej" },
     { name: "Tracey", idPrefix: "tracey" },
     { name: "Victor", idPrefix: "victor" },
     { name: "Wayne", idPrefix: "wayne" }
 ];
-
-
