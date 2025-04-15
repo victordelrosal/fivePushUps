@@ -326,6 +326,18 @@ td:first-child:hover {
     75% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
 }
+
+/* Pulse animations for silver and gold gradients */
+@keyframes silverPulse {
+    0% { background-position: 50% 0%; }
+    50% { background-position: 50% 100%; }
+    100% { background-position: 50% 0%; }
+}
+@keyframes goldPulse {
+    0% { background-position: 50% 0%; }
+    50% { background-position: 50% 100%; }
+    100% { background-position: 50% 0%; }
+}
 </style>
 </head>
 <body>
@@ -737,6 +749,54 @@ async function loadData() {
     }
 }
 
+// Update the silver gradient function to create a stunning vertical effect
+function applySilverGradient(row) {
+    // Create a more dramatic silver gradient with vertical distribution
+    row.style.background = "linear-gradient(to bottom, #ffffff, #e1ded9, #c1bab0, #827c75, #4a4744, #303030, #4a4744, #827c75, #c1bab0, #e1ded9)";
+    row.style.backgroundSize = "100% 200%";
+    row.style.color = "#ffffff"; 
+    row.style.textShadow = "0 2px 4px rgba(0,0,0,0.6)"; 
+    row.style.fontWeight = "600";
+    row.style.animation = "silverPulse 4s ease-in-out infinite";
+    
+    // Add a subtle border glow
+    row.style.boxShadow = "inset 0 0 15px rgba(255,255,255,0.5)";
+    
+    // Enhance all cells in the row
+    const cells = row.querySelectorAll('td');
+    cells.forEach(cell => {
+        if (cell !== row.firstElementChild) { // Skip player name cell
+            cell.style.borderLeft = "1px solid rgba(255,255,255,0.3)";
+            cell.style.borderRight = "1px solid rgba(0,0,0,0.2)";
+        }
+    });
+}
+
+// Update the gold gradient function to create a stunning vertical effect
+function applyGoldGradient(row) {
+    // Create a more dramatic gold gradient with vertical distribution
+    row.style.background = "linear-gradient(to bottom, #fff6d1, #ffd700, #f7c94c, #e1a93c, #c39226, #7f5e1f, #5c4717, #7f5e1f, #c39226, #e1a93c, #f7c94c, #ffd700)";
+    row.style.backgroundSize = "100% 200%";
+    row.style.color = "#ffffff";
+    row.style.textShadow = "0 2px 4px rgba(0,0,0,0.6)";
+    row.style.fontWeight = "600";
+    row.style.animation = "goldPulse 4s ease-in-out infinite";
+    
+    // Add a subtle border glow
+    row.style.boxShadow = "inset 0 0 20px rgba(255,215,0,0.6)";
+    
+    // Enhance all cells in the row
+    const cells = row.querySelectorAll('td');
+    cells.forEach(cell => {
+        if (cell !== row.firstElementChild) { // Skip player name cell
+            cell.style.borderLeft = "1px solid rgba(255,215,0,0.4)";
+            cell.style.borderRight = "1px solid rgba(127,94,31,0.3)";
+        }
+    });
+}
+
+// Modify the checkStreaks function to apply the gradient when a 10-day streak is detected
+// Update the checkStreaks function to apply the gold gradient when a 30-day streak is detected
 async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
@@ -752,7 +812,8 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
         players.forEach(player => {
             const streakCell10 = document.getElementById(`${player.idPrefix}-streak-10`);
             const streakCell30 = document.getElementById(`${player.idPrefix}-streak-30`);
-            
+            const playerRow = streakCell10.parentElement; // Get the player's row
+
             // Clear previous badges
             streakCell10.innerHTML = '';
             streakCell30.innerHTML = '';
@@ -780,6 +841,9 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
                     openModal(this);
                 };
                 streakCell10.appendChild(streakImg10);
+
+                // Apply the silver gradient to the player's row
+                applySilverGradient(playerRow);
             }
 
             if (checkStreak(filteredDates, 30)) {
@@ -791,6 +855,9 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL) {
                     openModal(this);
                 };
                 streakCell30.appendChild(streakImg30);
+
+                // Apply the gold gradient to the player's row
+                applyGoldGradient(playerRow);
             }
         });
 
