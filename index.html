@@ -281,6 +281,23 @@ td:first-child:hover {
     background: rgba(0, 0, 54, 0.95);
 }
 
+/* Add a style for the Today column to make it stand out */
+.today-column {
+    background-color: rgba(0, 20, 179, 0.4) !important;
+    position: sticky !important;
+    left: auto !important;
+    z-index: 2;
+    box-shadow: 0 0 15px rgba(0, 119, 255, 0.4);
+    border-left: 2px solid rgba(0, 119, 255, 0.6) !important;
+    border-right: 2px solid rgba(0, 119, 255, 0.6) !important;
+}
+
+th.today-column {
+    background: linear-gradient(180deg, var(--blue-6) 0%, var(--blue-5) 100%) !important;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     h2 {
@@ -602,14 +619,22 @@ function generateDateRange(startDate, endDate) {
     const dates = [];
     const currentDate = parseDate(startDate);
     const end = parseDate(endDate);
-    while (currentDate <= end) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Only include dates from start date to today (not future dates)
+    const lastDate = today < end ? today : end;
+    
+    while (currentDate <= lastDate) {
         const day = currentDate.getDate();
         const month = currentDate.getMonth() + 1;
         const year = currentDate.getFullYear();
         dates.push(`${month}/${day}/${year}`);
         currentDate.setDate(currentDate.getDate() + 1);
     }
-    return dates;
+    
+    // Sort in reverse chronological order (newest first)
+    return dates.sort((a, b) => parseDate(b) - parseDate(a));
 }
 
 function generateTable(startDate, endDate) {
@@ -624,6 +649,9 @@ function generateTable(startDate, endDate) {
     const badge30DayURL = "https://victordelrosal.github.io/fivePushUps/images/30dayStreak.png";
     
     const dates = generateDateRange(startDate, endDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const todayFormatted = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
 
     const headerRow = table.querySelector("thead tr");
     if (!headerRow) {
@@ -631,21 +659,22 @@ function generateTable(startDate, endDate) {
         return;
     }
 
-    // Remove any existing "10-Day Streak" and "25-Day Streak" headers
-    while (headerRow.children[1] && (headerRow.children[1].textContent === "10-Day Streak" || headerRow.children[1].textContent === "25-Day Streak" || headerRow.children[1].textContent === "30-Day Streak")) {
-        headerRow.removeChild(headerRow.children[1]);
+    // Clear existing date headers (keep only Player and Streak columns)
+    while (headerRow.children.length > 3) {
+        headerRow.removeChild(headerRow.lastChild);
     }
 
-    // Add streak column headers
-    const streakHeader10 = document.createElement("th");
-    streakHeader10.textContent = "10-Day Streak";
-    headerRow.insertBefore(streakHeader10, headerRow.children[1]);
+    // Add 'Today' column separately
+    const todayHeader = document.createElement("th");
+    todayHeader.textContent = "Today";
+    todayHeader.classList.add("today-column");
+    headerRow.appendChild(todayHeader);
 
-    const streakHeader30 = document.createElement("th");
-    streakHeader30.textContent = "30-Day Streak";
-    headerRow.insertBefore(streakHeader30, headerRow.children[2]);
-
+    // Add remaining dates
     dates.forEach(date => {
+        // Skip today's date as we already added it separately
+        if (date === todayFormatted) return;
+        
         const parts = date.split("/");
         const formattedDate = `${parseInt(parts[1], 10)}/${parseInt(parts[0], 10)}`;
         const th = document.createElement("th");
@@ -654,10 +683,7 @@ function generateTable(startDate, endDate) {
     });
 
     const tbody = table.querySelector("tbody");
-    if (!tbody) {
-        console.error("Table body not found");
-        return;
-    }
+    tbody.innerHTML = ""; // Clear existing rows
 
     players.forEach(player => {
         const row = document.createElement("tr");
@@ -673,9 +699,22 @@ function generateTable(startDate, endDate) {
         streakCell30.id = `${player.idPrefix}-streak-30`;
         row.appendChild(streakCell30);
 
+        // Add Today's cell first
+        const todayCell = document.createElement("td");
+        todayCell.classList.add("today-column");
+        const todayCheckbox = document.createElement("input");
+        todayCheckbox.type = "checkbox";
+        todayCheckbox.id = `${player.idPrefix}-${todayFormatted.replace(/\//g, '-')}`;
+        todayCheckbox.onclick = () => confirmCheck(todayCheckbox, player.name, todayFormatted);
+        todayCell.appendChild(todayCheckbox);
+        row.appendChild(todayCell);
+
+        // Add remaining date cells
         dates.forEach(date => {
-            const [month, day, year] = date.split("/");
-            const checkboxId = `${player.idPrefix}-${month}-${day}-${year}`;
+            // Skip today's date as we already added it separately
+            if (date === todayFormatted) return;
+            
+            const checkboxId = `${player.idPrefix}-${date.replace(/\//g, '-')}`;
             const checkbox = document.createElement("input");
             checkbox.type = "checkbox";
             checkbox.id = checkboxId;
