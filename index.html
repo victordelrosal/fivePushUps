@@ -32,6 +32,14 @@ h2 {
     letter-spacing: 0.5px;
     text-shadow: 0 2px 10px rgba(0, 0, 179, 0.3);
 }
+.streak-note {
+    font-family: Arial, sans-serif;
+    font-size: 13px; /* Increased font size by 2px (approx 2pt) */
+    color: #009f52; /* Changed to a green color */
+    text-align: center;
+    margin-top: -1rem; /* Adjust as needed to position it nicely below the title */
+    margin-bottom: 1.5rem; /* Add some space before the table container */
+}
 .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -298,6 +306,23 @@ th.today-column {
     letter-spacing: 1.5px;
 }
 
+/* Add row highlighting for 5-day streaks */
+tr.five-day-achievement {
+    background: linear-gradient(to bottom, #194d33, #2e7d32, #005704, #1b5e20, #1e5621, #123b14, #194d33) !important;
+    background-size: 100% 200%;
+    color: #005c0b;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.6);
+    font-weight: 600;
+    animation: greenPulse 4s ease-in-out infinite;
+    box-shadow: inset 0 0 15px rgba(0, 43, 0, 0.5);
+}
+
+@keyframes greenPulse {
+    0% { background-position: 50% 0%; }
+    50% { background-position: 50% 100%; }
+    100% { background-position: 50% 0%; }
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     h2 {
@@ -365,6 +390,7 @@ th.today-column {
 </head>
 <body>
 <h2>5 Push-ups & 5 Squats a Day Self-Tracker</h2>
+<p class="streak-note">5-day streaks highlighted in green</p>
 
 <div class="table-container">
 <table id="pushup-tracker">
@@ -869,6 +895,11 @@ function applyPlatinumGradient(row) {
     });
 }
 
+// Update function for 5-day row highlights to remove the green border on the left
+function applyFiveDayStyle(row) {
+    row.classList.add("five-day-achievement");
+}
+
 // Modify the checkStreaks function to apply the gradient when a 10-day streak is detected
 // Update the checkStreaks function to apply the gold gradient when a 30-day streak is detected
 async function checkStreaks(startDate, endDate, badge10URL, badge30URL, badge50URL) {
@@ -949,6 +980,19 @@ async function checkStreaks(startDate, endDate, badge10URL, badge30URL, badge50U
                 // Apply the platinum gradient to the player's row
                 applyPlatinumGradient(playerRow);
             }
+
+            // Apply row highlighting based on total days if no higher streak highlighting applied
+            if (checkStreak(filteredDates, 50)) {
+                applyPlatinumGradient(playerRow);
+            } else if (checkStreak(filteredDates, 30)) {
+                applyGoldGradient(playerRow);
+            } else if (checkStreak(filteredDates, 10)) {
+                applySilverGradient(playerRow);
+            } else if (filteredDates.length >= 5) {
+                applyFiveDayStyle(playerRow);
+            }
+
+            console.log(`${player.name}: ${filteredDates.length} days`);
         });
 
     } catch (error) {
