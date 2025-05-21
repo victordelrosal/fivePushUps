@@ -359,6 +359,8 @@ tr.five-day-achievement {
     z-index: 10000;
     opacity: 0;
     pointer-events: none;
+    color: #ffd700;
+    text-shadow: 0 0 15px rgba(255,215,0,0.8), 0 0 30px rgba(255,215,0,0.6);
 }
 
 @keyframes clappingAnimation {
@@ -367,6 +369,27 @@ tr.five-day-achievement {
     50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
     75% { transform: translate(-50%, -50%) scale(1.5); opacity: 1; }
     100% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+}
+
+.celebration-message {
+    position: fixed;
+    top: 65%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255,215,0,0.8), 0 0 20px rgba(255,215,0,0.6);
+    z-index: 10001;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@keyframes celebrationBounce {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+    70% { transform: translate(-50%, -50%) scale(0.9); }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }
 
 /* Pulse animations for silver and gold gradients */
@@ -432,6 +455,9 @@ tr.five-day-achievement {
 
 <!-- Clapping Hands Animation -->
 <div id="clapping-animation" class="clapping-animation">👏👏👏</div>
+
+<!-- Celebration Message -->
+<div id="celebration-message" class="celebration-message">Great job! 🎉</div>
 
 <script type="module">
 // Import the functions you need from the SDKs you need
@@ -616,11 +642,15 @@ function createConfetti() {
 
 function triggerClappingAnimation() {
     const clappingAnimation = document.getElementById("clapping-animation");
+    const celebrationMessage = document.getElementById("celebration-message");
     clappingAnimation.style.animation = "clappingAnimation 2s ease-in-out";
     clappingAnimation.style.opacity = "1";
+    celebrationMessage.style.animation = "celebrationBounce 2s ease-in-out";
+    celebrationMessage.style.opacity = "1";
 
     setTimeout(() => {
         clappingAnimation.style.opacity = "0";
+        celebrationMessage.style.opacity = "0";
     }, 2000);
 }
 
