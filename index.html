@@ -529,6 +529,40 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
+// Sort players by activity in the last 10 days (most active first)
+async function sortPlayersByActivity() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "pushups"));
+        const activityMap = {};
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const tenDaysAgo = new Date(today);
+        tenDaysAgo.setDate(today.getDate() - 9); // include today
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            const [month, day, year] = data.date.split('/').map(Number);
+            const checkDate = new Date(year, month - 1, day);
+            if (checkDate >= tenDaysAgo && checkDate <= today) {
+                const name = data.name;
+                if (!activityMap[name]) activityMap[name] = 0;
+                activityMap[name]++;
+            }
+        });
+
+        players.sort((a, b) => {
+            const countA = activityMap[a.name] || 0;
+            const countB = activityMap[b.name] || 0;
+            if (countA !== countB) {
+                return countB - countA; // Descending activity
+            }
+            return a.name.localeCompare(b.name); // Alphabetical fallback
+        });
+    } catch (error) {
+        console.error("Error sorting players by activity:", error);
+    }
+}
+
 function confirmCheck(checkbox, name, dateString) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -1084,7 +1118,8 @@ function openModal(img) {
 }
 
 // Call generateTable with start and end dates
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+    await sortPlayersByActivity();
     generateTable(START_DATE, END_DATE);
 });
 </script>
