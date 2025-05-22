@@ -40,6 +40,14 @@ h2 {
     margin-top: -1rem; /* Adjust as needed to position it nicely below the title */
     margin-bottom: 1.5rem; /* Add some space before the table container */
 }
+.sort-legend {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    color: #ffcc00;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
 .table-container {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
@@ -412,6 +420,7 @@ tr.five-day-achievement {
 </style>
 </head>
 <body>
+<p class="sort-legend">Sorted by total check-ins, then last 10 days, then name.</p>
 <h2>5 Push-ups & 5 Squats a Day Self-Tracker</h2>
 <p class="streak-note">5-day streaks highlighted in green</p>
 
@@ -529,34 +538,36 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Sort players by activity in the last 10 days (most active first)
+// Sort players by total check-ins, then last 10 days
 async function sortPlayersByActivity() {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
-        const activityMap = {};
+        const totalMap = {};
+        const recentMap = {};
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         const tenDaysAgo = new Date(today);
-        tenDaysAgo.setDate(today.getDate() - 9); // include today
+        tenDaysAgo.setDate(today.getDate() - 9);
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
-            const [month, day, year] = data.date.split('/').map(Number);
+            const [month, day, year] = data.date.split("/").map(Number);
             const checkDate = new Date(year, month - 1, day);
+            const name = data.name;
+            totalMap[name] = (totalMap[name] || 0) + 1;
             if (checkDate >= tenDaysAgo && checkDate <= today) {
-                const name = data.name;
-                if (!activityMap[name]) activityMap[name] = 0;
-                activityMap[name]++;
+                recentMap[name] = (recentMap[name] || 0) + 1;
             }
         });
 
         players.sort((a, b) => {
-            const countA = activityMap[a.name] || 0;
-            const countB = activityMap[b.name] || 0;
-            if (countA !== countB) {
-                return countB - countA; // Descending activity
-            }
-            return a.name.localeCompare(b.name); // Alphabetical fallback
+            const totalA = totalMap[a.name] || 0;
+            const totalB = totalMap[b.name] || 0;
+            if (totalA !== totalB) return totalB - totalA;
+            const recentA = recentMap[a.name] || 0;
+            const recentB = recentMap[b.name] || 0;
+            if (recentA !== recentB) return recentB - recentA;
+            return a.name.localeCompare(b.name);
         });
     } catch (error) {
         console.error("Error sorting players by activity:", error);
