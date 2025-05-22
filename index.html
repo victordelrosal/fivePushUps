@@ -420,7 +420,7 @@ tr.five-day-achievement {
 </style>
 </head>
 <body>
-<p class="sort-legend">Sorted by total check-ins, then last 10 days, then name.</p>
+<p class="sort-legend">Sorted by total check-ins, then name.</p>
 <h2>5 Push-ups & 5 Squats a Day Self-Tracker</h2>
 <p class="streak-note">5-day streaks highlighted in green</p>
 
@@ -538,35 +538,22 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Sort players by total check-ins, then last 10 days
+// Sort players by total check-ins, then name
 async function sortPlayersByActivity() {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
         const totalMap = {};
-        const recentMap = {};
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const tenDaysAgo = new Date(today);
-        tenDaysAgo.setDate(today.getDate() - 9);
-
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const [month, day, year] = data.date.split("/").map(Number);
-            const checkDate = new Date(year, month - 1, day);
             const name = data.name;
             totalMap[name] = (totalMap[name] || 0) + 1;
-            if (checkDate >= tenDaysAgo && checkDate <= today) {
-                recentMap[name] = (recentMap[name] || 0) + 1;
-            }
         });
 
         players.sort((a, b) => {
             const totalA = totalMap[a.name] || 0;
             const totalB = totalMap[b.name] || 0;
             if (totalA !== totalB) return totalB - totalA;
-            const recentA = recentMap[a.name] || 0;
-            const recentB = recentMap[b.name] || 0;
-            if (recentA !== recentB) return recentB - recentA;
             return a.name.localeCompare(b.name);
         });
     } catch (error) {
