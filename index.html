@@ -529,7 +529,7 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Sort players using medal, total activity, then name
+// Sort players by total points (checkmarks and streak bonuses)
 async function sortPlayersByActivity() {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
@@ -551,20 +551,33 @@ async function sortPlayersByActivity() {
         const startDateObj = parseDate(START_DATE);
         const endDateObj = parseDate(END_DATE);
 
+        // Calculate points for each player
+        Object.keys(playerStats).forEach(name => {
+            const dates = playerStats[name].dates
+                .filter(d => d >= startDateObj && d <= endDateObj)
+                .sort((a, b) => a - b);
+
+            let points = dates.length; // 1 point per check
+
+            if (checkStreak(dates, 50)) {
+                points += 50;
+            } else if (checkStreak(dates, 30)) {
+                points += 30;
+            } else if (checkStreak(dates, 10)) {
+                points += 10;
+            } else if (dates.length >= 5) {
+                points += 5;
+            }
+
+            playerStats[name].points = points;
+        });
+
         players.sort((a, b) => {
-            const statsA = playerStats[a.name] || { dates: [] };
-            const statsB = playerStats[b.name] || { dates: [] };
+            const pointsA = playerStats[a.name]?.points || 0;
+            const pointsB = playerStats[b.name]?.points || 0;
 
-            const rankA = getMedalRank(statsA.dates, startDateObj, endDateObj);
-            const rankB = getMedalRank(statsB.dates, startDateObj, endDateObj);
-
-            if (rankA !== rankB) return rankA - rankB;
-
-            const totalA = statsA.dates.length;
-            const totalB = statsB.dates.length;
-
-            if (totalA !== totalB) {
-                return totalB - totalA;
+            if (pointsA !== pointsB) {
+                return pointsB - pointsA; // higher points first
             }
 
             return a.name.localeCompare(b.name);
@@ -574,17 +587,6 @@ async function sortPlayersByActivity() {
     }
 }
 
-// Determine medal rank for a player based on streaks
-function getMedalRank(dates, startDate, endDate) {
-    const filtered = dates
-        .filter(d => d >= startDate && d <= endDate)
-        .sort((a, b) => a - b);
-
-    if (checkStreak(filtered, 30)) return 1; // gold
-    if (checkStreak(filtered, 10)) return 2; // silver
-    if (filtered.length >= 5) return 3; // green highlight
-    return 4; // none
-}
 
 function confirmCheck(checkbox, name, dateString) {
     const today = new Date();
