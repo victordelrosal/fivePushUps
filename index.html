@@ -529,16 +529,11 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Sort players using medal, recent activity, then name
+// Sort players using medal, total activity, then name
 async function sortPlayersByActivity() {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
         const playerStats = {};
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const thirtyDaysAgo = new Date(today);
-        thirtyDaysAgo.setDate(today.getDate() - 29); // include today
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
@@ -547,30 +542,29 @@ async function sortPlayersByActivity() {
             const name = data.name;
 
             if (!playerStats[name]) {
-                playerStats[name] = { dates: [], recent: 0 };
+                playerStats[name] = { dates: [] };
             }
 
             playerStats[name].dates.push(checkDate);
-
-            if (checkDate >= thirtyDaysAgo && checkDate <= today) {
-                playerStats[name].recent++;
-            }
         });
 
         const startDateObj = parseDate(START_DATE);
         const endDateObj = parseDate(END_DATE);
 
         players.sort((a, b) => {
-            const statsA = playerStats[a.name] || { dates: [], recent: 0 };
-            const statsB = playerStats[b.name] || { dates: [], recent: 0 };
+            const statsA = playerStats[a.name] || { dates: [] };
+            const statsB = playerStats[b.name] || { dates: [] };
 
             const rankA = getMedalRank(statsA.dates, startDateObj, endDateObj);
             const rankB = getMedalRank(statsB.dates, startDateObj, endDateObj);
 
             if (rankA !== rankB) return rankA - rankB;
 
-            if (statsA.recent !== statsB.recent) {
-                return statsB.recent - statsA.recent;
+            const totalA = statsA.dates.length;
+            const totalB = statsB.dates.length;
+
+            if (totalA !== totalB) {
+                return totalB - totalA;
             }
 
             return a.name.localeCompare(b.name);
