@@ -529,38 +529,67 @@ function parseDate(dateStr) {
     return new Date(dateStr);
 }
 
-// Sort players by activity in the last 10 days (most active first)
+// Sort players using medal, recent activity, then name
 async function sortPlayersByActivity() {
     try {
         const querySnapshot = await getDocs(collection(db, "pushups"));
-        const activityMap = {};
+        const playerStats = {};
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const tenDaysAgo = new Date(today);
-        tenDaysAgo.setDate(today.getDate() - 9); // include today
+        const thirtyDaysAgo = new Date(today);
+        thirtyDaysAgo.setDate(today.getDate() - 29); // include today
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             const [month, day, year] = data.date.split('/').map(Number);
             const checkDate = new Date(year, month - 1, day);
-            if (checkDate >= tenDaysAgo && checkDate <= today) {
-                const name = data.name;
-                if (!activityMap[name]) activityMap[name] = 0;
-                activityMap[name]++;
+            const name = data.name;
+
+            if (!playerStats[name]) {
+                playerStats[name] = { dates: [], recent: 0 };
+            }
+
+            playerStats[name].dates.push(checkDate);
+
+            if (checkDate >= thirtyDaysAgo && checkDate <= today) {
+                playerStats[name].recent++;
             }
         });
 
+        const startDateObj = parseDate(START_DATE);
+        const endDateObj = parseDate(END_DATE);
+
         players.sort((a, b) => {
-            const countA = activityMap[a.name] || 0;
-            const countB = activityMap[b.name] || 0;
-            if (countA !== countB) {
-                return countB - countA; // Descending activity
+            const statsA = playerStats[a.name] || { dates: [], recent: 0 };
+            const statsB = playerStats[b.name] || { dates: [], recent: 0 };
+
+            const rankA = getMedalRank(statsA.dates, startDateObj, endDateObj);
+            const rankB = getMedalRank(statsB.dates, startDateObj, endDateObj);
+
+            if (rankA !== rankB) return rankA - rankB;
+
+            if (statsA.recent !== statsB.recent) {
+                return statsB.recent - statsA.recent;
             }
-            return a.name.localeCompare(b.name); // Alphabetical fallback
+
+            return a.name.localeCompare(b.name);
         });
     } catch (error) {
         console.error("Error sorting players by activity:", error);
     }
+}
+
+// Determine medal rank for a player based on streaks
+function getMedalRank(dates, startDate, endDate) {
+    const filtered = dates
+        .filter(d => d >= startDate && d <= endDate)
+        .sort((a, b) => a - b);
+
+    if (checkStreak(filtered, 30)) return 1; // gold
+    if (checkStreak(filtered, 10)) return 2; // silver
+    if (filtered.length >= 5) return 3; // green highlight
+    return 4; // none
 }
 
 function confirmCheck(checkbox, name, dateString) {
