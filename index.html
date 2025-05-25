@@ -403,8 +403,8 @@ tr.five-day-achievement {
     50% { background-position: 50% 100%; }
     100% { background-position: 50% 0%; }
 }
-/* Pulse animations for platinum gradients */
-@keyframes platinumPulse {
+/* Pulse animations for holographic gradients */
+@keyframes holographicPulse {
     0% { background-position: 50% 0%; }
     50% { background-position: 50% 100%; }
     100% { background-position: 50% 0%; }
@@ -961,16 +961,16 @@ function applyGoldGradient(row) {
     });
 }
 
-// Add a new platinum gradient function for 50-day streaks
+// Add a holographic gradient function for 50-day streaks
 function applyPlatinumGradient(row) {
-    // Apply a dramatic black/platinum shimmer for the 50-day streak
+    // Apply an almost-black holographic shimmer for the 50-day streak
     row.style.background =
-        "linear-gradient(120deg, #000000, #0e0e0e, #1a1a1a, #2e2e2e, #4a4a4a, #7d7d7d, #d0d0d0, #ffffff, #d0d0d0, #7d7d7d, #4a4a4a, #2e2e2e, #1a1a1a, #0e0e0e, #000000)";
-    row.style.backgroundSize = "200% 200%";
+        "linear-gradient(to bottom, #000000, #0b0b0b, #1a1a1a, #292929, #0077ff, #ff00ff, #00ffff, #ff00ff, #0077ff, #292929, #1a1a1a, #0b0b0b, #000000)";
+    row.style.backgroundSize = "100% 300%";
     row.style.color = "#ffffff";
     row.style.textShadow = "0 2px 6px rgba(0,0,0,0.8)";
     row.style.fontWeight = "700";
-    row.style.animation = "platinumPulse 6s ease-in-out infinite";
+    row.style.animation = "holographicPulse 6s ease-in-out infinite";
 
     // Add a strong border glow for a cool effect
     row.style.boxShadow =
