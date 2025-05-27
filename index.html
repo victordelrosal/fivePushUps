@@ -775,6 +775,9 @@ function generateTable(startDate, endDate) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const todayFormatted = `${today.getMonth() + 1}/${today.getDate()}/${today.getFullYear()}`;
+    const startDateObj = parseDate(startDate);
+    const endDateObj = parseDate(endDate);
+    const isTodayInRange = today >= startDateObj && today <= endDateObj;
 
     const headerRow = table.querySelector("thead tr");
     if (!headerRow) {
@@ -787,11 +790,13 @@ function generateTable(startDate, endDate) {
         headerRow.removeChild(headerRow.lastChild);
     }
 
-    // Add 'Today' column separately
-    const todayHeader = document.createElement("th");
-    todayHeader.textContent = "Today";
-    todayHeader.classList.add("today-column");
-    headerRow.appendChild(todayHeader);
+    // Add 'Today' column separately when within the active date range
+    if (isTodayInRange) {
+        const todayHeader = document.createElement("th");
+        todayHeader.textContent = "Today";
+        todayHeader.classList.add("today-column");
+        headerRow.appendChild(todayHeader);
+    }
 
     // Add remaining dates
     dates.forEach(date => {
@@ -826,15 +831,17 @@ function generateTable(startDate, endDate) {
         streakCell50.id = `${player.idPrefix}-streak-50`;
         row.appendChild(streakCell50);
 
-        // Add Today's cell first
-        const todayCell = document.createElement("td");
-        todayCell.classList.add("today-column");
-        const todayCheckbox = document.createElement("input");
-        todayCheckbox.type = "checkbox";
-        todayCheckbox.id = `${player.idPrefix}-${todayFormatted.replace(/\//g, '-')}`;
-        todayCheckbox.onclick = () => confirmCheck(todayCheckbox, player.name, todayFormatted);
-        todayCell.appendChild(todayCheckbox);
-        row.appendChild(todayCell);
+        // Add Today's cell first when within the active date range
+        if (isTodayInRange) {
+            const todayCell = document.createElement("td");
+            todayCell.classList.add("today-column");
+            const todayCheckbox = document.createElement("input");
+            todayCheckbox.type = "checkbox";
+            todayCheckbox.id = `${player.idPrefix}-${todayFormatted.replace(/\//g, '-')}`;
+            todayCheckbox.onclick = () => confirmCheck(todayCheckbox, player.name, todayFormatted);
+            todayCell.appendChild(todayCheckbox);
+            row.appendChild(todayCell);
+        }
 
         // Add remaining date cells
         dates.forEach(date => {
@@ -856,10 +863,8 @@ function generateTable(startDate, endDate) {
 
     disableFutureDates();
     loadData();
-    
-    // Pass start and end date objects to checkStreaks normally using parseDate
-    const startDateObj = parseDate(startDate);
-    const endDateObj = parseDate(endDate);
+
+    // Pass start and end date objects to checkStreaks
     checkStreaks(startDateObj, endDateObj, badge10DayURL, badge30DayURL, badge50DayURL);
 }
 
